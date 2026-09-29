@@ -43,19 +43,39 @@ class AudioService {
   }
 
   /**
-   * Mở khóa Web Audio context trên iOS Safari tại màn hình "Chạm để bắt đầu"
+   * Mở khóa toàn diện âm thanh trên iOS/iPadOS Safari:
+   * 1. Kích hoạt Web AudioContext đồng bộ
+   * 2. Kích hoạt HTML5 Audio element để thiết lập quyền phát âm thanh Media Playback
    */
-  public async unlock(): Promise<boolean> {
-    if (this.isUnlocked) return true
+  public unlock(): void {
+    if (this.isUnlocked) return
+
     try {
-      if (Howler.ctx && Howler.ctx.state === 'suspended') {
-        await Howler.ctx.resume()
+      // 1. Mở khóa Web AudioContext (Howler)
+      if (Howler.ctx) {
+        if (Howler.ctx.state === 'suspended') {
+          Howler.ctx.resume()
+        }
+        // Tạo 1 sample silent buffer để đánh thức AudioContext
+        const buffer = Howler.ctx.createBuffer(1, 1, 22050)
+        const source = Howler.ctx.createBufferSource()
+        source.buffer = buffer
+        source.connect(Howler.ctx.destination)
+        source.start(0)
       }
+
+      // 2. Mở khóa HTML5 Audio element với một data URI âm thanh câm (silent wav)
+      // Điều này báo cho iOS/iPadOS WebKit chuyển sang session Playback (vượt qua công tắc im lặng)
+      const silentAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA')
+      silentAudio.play().then(() => {
+        silentAudio.pause()
+      }).catch(() => {
+        // bỏ qua nếu bị chặn
+      })
+
       this.isUnlocked = true
-      return true
     } catch (e) {
-      console.warn('Lỗi khi mở khóa âm thanh iOS:', e)
-      return false
+      console.warn('Lỗi khi mở khóa âm thanh iOS/iPad:', e)
     }
   }
 
@@ -92,7 +112,9 @@ class AudioService {
   }
 
   /**
-   * Phát một câu thoại (Chỉ cho phép 1 giọng nói phát tại 1 thời điểm)
+   * Phát một câu thoại:
+   * SỬ DỤNG html5: true ĐỂ PHÁT QUA MEDIA AUDIO SESSION TRÊN IPAD
+   * (Giúp nghe được âm thanh ngay cả khi iPad đang bật chế độ Im Lặng trong Control Center)
    */
   public playVoice(clipId: string, onEnd?: VoiceEndCallback): void {
     this.stopVoice()
@@ -103,12 +125,18 @@ class AudioService {
     if (soundUrl) {
       const howl = new Howl({
         src: [soundUrl],
-        html5: false, // Dùng Web Audio API để không có độ trễ trên iPad
+        html5: true, // BẮT BUỘC TRÊN IPAD: Vượt qua chế độ Silent Mode / Quả chuông trong Control Center
+        preload: true,
         volume: 1.0,
         onloaderror: (_id, err) => {
           console.warn(`Lỗi tải âm thanh [${clipId}]:`, err)
           this.notifyEnd()
           onEnd?.()
+        },
+        onplayerror: (_id, err) => {
+          console.warn(`Lỗi phát âm thanh [${clipId}]:`, err)
+          // Nếu html5: true gặp sự cố, thử fallback sang html5: false
+          this.playWithWebAudioFallback(soundUrl, onEnd)
         },
         onplay: () => {
           this.notifyStart()
@@ -124,6 +152,29 @@ class AudioService {
     } else {
       console.warn(`Không tìm thấy âm thanh clipId [${clipId}], fallback dev Web Speech`)
       this.fallbackWebSpeech(clipId, onEnd)
+    }
+  }
+
+  /**
+   * Fallback phát lại qua Web Audio nếu cần
+   */
+  private playWithWebAudioFallback(soundUrl: string, onEnd?: VoiceEndCallback) {
+    try {
+      const howl = new Howl({
+        src: [soundUrl],
+        html5: false,
+        volume: 1.0,
+        onplay: () => this.notifyStart(),
+        onend: () => {
+          this.notifyEnd()
+          onEnd?.()
+        },
+      })
+      this.currentVoiceHowl = howl
+      howl.play()
+    } catch {
+      this.notifyEnd()
+      onEnd?.()
     }
   }
 

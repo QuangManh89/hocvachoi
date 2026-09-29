@@ -29,9 +29,9 @@ export const App: React.FC = () => {
     return cleanup
   }, [])
 
-  // Mở khóa âm thanh iOS tại lần chạm đầu tiên
-  const handleStartApp = async () => {
-    await audioService.unlock()
+  // Mở khóa âm thanh iOS/iPadOS tại lần chạm đầu tiên
+  const handleStartApp = () => {
+    audioService.unlock()
     setIsUnlocked(true)
     setSpeechText('Chào bạn! Mình là Mèo Bông, chúng mình cùng chơi nào!')
     audioService.playVoice('cat_greeting')
@@ -67,8 +67,11 @@ export const App: React.FC = () => {
           <h1 className="text-3xl md:text-4xl font-extrabold text-[#5A3E36] mb-3 text-center">
             Học Và Chơi cùng Mèo Bông
           </h1>
-          <p className="text-lg md:text-xl text-[#8C6D62] mb-8 text-center max-w-sm">
+          <p className="text-lg md:text-xl text-[#8C6D62] mb-4 text-center max-w-sm">
             Ứng dụng học sớm tiếng Việt cho bé
+          </p>
+          <p className="text-xs text-[#8C6D62]/80 mb-6 text-center max-w-xs">
+            💡 Lưu ý trên iPad: Vuốt góc phải xuống kiểm tra biểu tượng Quả Chuông không bị gạch chéo
           </p>
           <button className="btn-kid bg-[#7ED6C1] text-[#5A3E36] text-2xl font-black px-10 py-5 rounded-3xl shadow-lg border-4 border-white active:scale-95 transition-transform flex items-center gap-3">
             <Sparkles className="w-8 h-8 text-[#FFD25E]" />
