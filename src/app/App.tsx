@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import confetti from 'canvas-confetti'
-import { Settings, Sparkles, CheckCircle } from 'lucide-react'
-import { MeoBong, type MeoBongState } from '@/components/MeoBong'
+import { Settings, Sparkles, CheckCircle, Zap } from 'lucide-react'
+import { Pikachu, type PikachuState } from '@/components/Pikachu'
 import { audioService } from '@/core/audio/AudioService'
 import { ParentGate } from '@/core/gate/ParentGate'
 import { db } from '@/core/storage/db'
 
 export const App: React.FC = () => {
   const [isUnlocked, setIsUnlocked] = useState(false)
-  const [catState, setCatState] = useState<MeoBongState>('wave')
+  const [pikaState, setPikaState] = useState<PikachuState>('wave')
   const [speechText, setSpeechText] = useState('Chạm vào màn hình để bắt đầu nhé!')
   const [isParentGateOpen, setIsParentGateOpen] = useState(false)
   const [parentAreaActive, setParentAreaActive] = useState(false)
@@ -20,10 +20,10 @@ export const App: React.FC = () => {
       setProfileName(prof.nickname)
     })
 
-    // Lắng nghe sự kiện phát âm thanh để Mèo Bông tự mở miệng nói
+    // Lắng nghe sự kiện phát âm thanh để Pikachu tự mở miệng nói
     const cleanup = audioService.onVoiceStateChange(
-      () => setCatState('talk'),
-      () => setCatState('idle')
+      () => setPikaState('talk'),
+      () => setPikaState('idle')
     )
 
     return cleanup
@@ -33,24 +33,24 @@ export const App: React.FC = () => {
   const handleStartApp = () => {
     audioService.unlock()
     setIsUnlocked(true)
-    setSpeechText('Chào bạn! Mình là Mèo Bông, chúng mình cùng chơi nào!')
-    audioService.playVoice('cat_greeting')
+    setSpeechText('Chào bạn! Mình là Pikachu, chúng mình cùng chơi nào!')
+    audioService.playVoice('pikachu_greeting')
   }
 
   // Chơi âm thanh và biểu cảm tương ứng
-  const handlePlaySample = (clipId: string, text: string, state: MeoBongState) => {
+  const handlePlaySample = (clipId: string, text: string, state: PikachuState) => {
     setSpeechText(text)
-    setCatState(state)
+    setPikaState(state)
     audioService.playVoice(clipId, () => {
-      setCatState('idle')
+      setPikaState('idle')
     })
 
     if (state === 'cheer') {
       confetti({
-        particleCount: 60,
-        spread: 70,
+        particleCount: 65,
+        spread: 75,
         origin: { y: 0.6 },
-        colors: ['#7ED6C1', '#FFD25E', '#FF8A65', '#4FB3D9'],
+        colors: ['#FED000', '#FF3B30', '#7ED6C1', '#4FB3D9'],
       })
     }
   }
@@ -63,18 +63,19 @@ export const App: React.FC = () => {
           onClick={handleStartApp}
           className="fixed inset-0 z-40 bg-[#FFF8EC]/95 backdrop-blur-sm flex flex-col items-center justify-center cursor-pointer p-6"
         >
-          <MeoBong state="wave" size={240} className="mb-6 drop-shadow-xl" />
-          <h1 className="text-3xl md:text-4xl font-extrabold text-[#5A3E36] mb-3 text-center">
-            Học Và Chơi cùng Mèo Bông
+          <Pikachu state="wave" size={240} className="mb-6 drop-shadow-2xl" />
+          <h1 className="text-3xl md:text-4xl font-extrabold text-[#5A3E36] mb-3 text-center flex items-center justify-center gap-2">
+            <span>Học Và Chơi cùng Pikachu</span>
+            <Zap className="w-8 h-8 text-[#FED000] fill-[#FED000]" />
           </h1>
-          <p className="text-lg md:text-xl text-[#8C6D62] mb-4 text-center max-w-sm">
+          <p className="text-lg md:text-xl text-[#8C6D62] mb-3 text-center max-w-sm">
             Ứng dụng học sớm tiếng Việt cho bé
           </p>
           <p className="text-xs text-[#8C6D62]/80 mb-6 text-center max-w-xs">
             💡 Lưu ý trên iPad: Vuốt góc phải xuống kiểm tra biểu tượng Quả Chuông không bị gạch chéo
           </p>
-          <button className="btn-kid bg-[#7ED6C1] text-[#5A3E36] text-2xl font-black px-10 py-5 rounded-3xl shadow-lg border-4 border-white active:scale-95 transition-transform flex items-center gap-3">
-            <Sparkles className="w-8 h-8 text-[#FFD25E]" />
+          <button className="btn-kid bg-[#FED000] text-[#5A3E36] text-2xl font-black px-10 py-5 rounded-3xl shadow-lg border-4 border-white active:scale-95 transition-transform flex items-center gap-3">
+            <Sparkles className="w-8 h-8 text-[#FF3B30]" />
             <span>Chạm Để Bắt Đầu</span>
           </button>
         </div>
@@ -82,9 +83,9 @@ export const App: React.FC = () => {
 
       {/* 2. Header Bar: Profile, Thông tin & Nút Cổng Phụ Huynh */}
       <header className="flex justify-between items-center w-full z-10 pt-2">
-        <div className="flex items-center gap-3 bg-white/70 px-4 py-2 rounded-full border-2 border-[#5A3E36]/10 shadow-sm">
-          <div className="w-10 h-10 rounded-full bg-[#FFD25E] flex items-center justify-center font-bold text-lg text-[#5A3E36]">
-            🐱
+        <div className="flex items-center gap-3 bg-white/80 px-4 py-2 rounded-full border-2 border-[#5A3E36]/10 shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-[#FED000] flex items-center justify-center font-bold text-lg text-[#5A3E36] shadow-sm">
+            ⚡
           </div>
           <div>
             <div className="font-extrabold text-base leading-none">{profileName}</div>
@@ -103,23 +104,23 @@ export const App: React.FC = () => {
         </button>
       </header>
 
-      {/* 3. Khu Vực Chính: Mèo Bông & Lời Thoại */}
+      {/* 3. Khu Vực Chính: Pikachu & Lời Thoại */}
       <main className="flex-1 flex flex-col items-center justify-center max-w-2xl mx-auto w-full py-2">
-        {/* Bong bóng lời thoại của Mèo Bông */}
+        {/* Bong bóng lời thoại của Pikachu */}
         <div className="relative bg-white border-3 border-[#5A3E36] rounded-3xl px-6 py-4 shadow-md mb-4 max-w-md text-center">
           <p className="text-lg md:text-xl font-bold text-[#5A3E36] leading-snug">
             {speechText}
           </p>
-          {/* Mũi nhọn bóng thoại chỉ xuống Mèo Bông */}
+          {/* Mũi nhọn bóng thoại chỉ xuống Pikachu */}
           <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-white border-b-3 border-r-3 border-[#5A3E36] rotate-45" />
         </div>
 
-        {/* Component Nhân vật Mèo Bông tương tác */}
+        {/* Component Nhân vật Pikachu tương tác */}
         <div className="relative my-2">
-          <MeoBong
-            state={catState}
-            size={220}
-            onClick={() => handlePlaySample('cat_greeting', 'Chào bạn! Mình là Mèo Bông!', 'wave')}
+          <Pikachu
+            state={pikaState}
+            size={230}
+            onClick={() => handlePlaySample('pikachu_greeting', 'Chào bạn! Mình là Pikachu!', 'wave')}
           />
         </div>
       </main>
@@ -131,7 +132,7 @@ export const App: React.FC = () => {
           <span className="text-xs font-bold uppercase tracking-wider text-[#8C6D62]">
             Hoạt động mẫu (Phase 0 Spike)
           </span>
-          <span className="text-xs text-[#8C6D62]">Chạm nút để nghe & xem Mèo Bông</span>
+          <span className="text-xs text-[#8C6D62]">Chạm nút để nghe & xem Pikachu</span>
         </div>
 
         {/* Lưới nút chạm lớn chuẩn Kiosk Trẻ Em (≥ 80px) */}
@@ -173,14 +174,14 @@ export const App: React.FC = () => {
           </button>
         </div>
 
-        {/* Thanh trạng thái cảm xúc của Mèo Bông để test */}
+        {/* Thanh trạng thái cảm xúc của Pikachu để test */}
         <div className="flex justify-center gap-2 overflow-x-auto py-1">
-          {(['idle', 'wave', 'talk', 'cheer', 'think', 'encourage', 'surprise', 'sleep'] as MeoBongState[]).map(
+          {(['idle', 'wave', 'talk', 'cheer', 'think', 'encourage', 'surprise', 'sleep'] as PikachuState[]).map(
             (s) => (
               <button
                 key={s}
                 onClick={() => {
-                  setCatState(s)
+                  setPikaState(s)
                   if (s === 'cheer') {
                     handlePlaySample('cat_praise', 'Giỏi quá! Đúng rồi!', 'cheer')
                   } else if (s === 'encourage') {
@@ -188,11 +189,11 @@ export const App: React.FC = () => {
                   } else if (s === 'think') {
                     handlePlaySample('cat_hint', 'Ở đây nè!', 'think')
                   } else if (s === 'sleep') {
-                    handlePlaySample('cat_sleep', 'Mình buồn ngủ rồi...', 'sleep')
+                    handlePlaySample('pikachu_sleep', 'Pikachu buồn ngủ rồi...', 'sleep')
                   }
                 }}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${
-                  catState === s
+                  pikaState === s
                     ? 'bg-[#5A3E36] text-white border-[#5A3E36]'
                     : 'bg-white/80 text-[#5A3E36] border-[#5A3E36]/20'
                 }`}
@@ -221,7 +222,7 @@ export const App: React.FC = () => {
             <div className="flex justify-between items-center mb-6 border-b-2 border-[#5A3E36]/10 pb-4">
               <h2 className="text-2xl font-black flex items-center gap-2">
                 <Settings className="w-7 h-7 text-[#7ED6C1]" />
-                Khu Vực Phụ Huynh (Phase 0 Spike)
+                Khu Vực Phụ Huynh (Pikachu Edition)
               </h2>
               <button
                 onClick={() => setParentAreaActive(false)}
@@ -238,11 +239,11 @@ export const App: React.FC = () => {
                   Kiểm chứng Kỹ thuật Phase 0 (iPad Ready)
                 </h3>
                 <ul className="text-sm space-y-2 text-[#6B514A]">
-                  <li>✅ <strong>Âm thanh iOS:</strong> Mở khóa Web Audio tức thì, Howler.js không trễ.</li>
+                  <li>✅ <strong>Nhân vật đồng hành:</strong> Pikachu SVG đa lớp với 8 trạng thái cảm xúc, má hồng tích điện và đuôi tia sét.</li>
+                  <li>✅ <strong>Âm thanh iPad:</strong> Đã chuyển sang `html5: true`, phát qua Media Session không sợ câm tiếng.</li>
                   <li>✅ <strong>Kiosk Trẻ em:</strong> Đã bật chống cuộn, chống phóng to, nút bấm ≥ 80px CSS.</li>
                   <li>✅ <strong>Cổng Phụ Huynh:</strong> Đã test thành công 2 điểm chạm giữ 3 giây.</li>
                   <li>✅ <strong>IndexedDB (Dexie):</strong> Đã kết nối cơ sở dữ liệu `hocvachoi_v1` lưu trữ hồ sơ.</li>
-                  <li>✅ <strong>Mèo Bông SVG:</strong> Đầy đủ 8 trạng thái cảm xúc Framer Motion sắc nét.</li>
                 </ul>
               </div>
 

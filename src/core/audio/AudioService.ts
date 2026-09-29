@@ -11,12 +11,14 @@ class AudioService {
 
   // Bảng ánh xạ clipId sang đường dẫn file audio tĩnh bundled trong src/assets/sounds
   private staticAudioMap: Record<string, string> = {
-    // Mèo Bông
-    cat_greeting: new URL('../../assets/sounds/meo_bong_chao.mp3', import.meta.url).href,
+    // Nhân vật bạn đồng hành (Pikachu)
+    pikachu_greeting: new URL('../../assets/sounds/pikachu_chao.mp3', import.meta.url).href,
+    pikachu_sleep: new URL('../../assets/sounds/pikachu_buon_ngu.mp3', import.meta.url).href,
+    cat_greeting: new URL('../../assets/sounds/pikachu_chao.mp3', import.meta.url).href,
     cat_praise: new URL('../../assets/sounds/meo_bong_khen.mp3', import.meta.url).href,
     cat_encourage: new URL('../../assets/sounds/meo_bong_dong_vien.mp3', import.meta.url).href,
     cat_hint: new URL('../../assets/sounds/meo_bong_goi_y.mp3', import.meta.url).href,
-    cat_sleep: new URL('../../assets/sounds/meo_bong_buon_ngu.mp3', import.meta.url).href,
+    cat_sleep: new URL('../../assets/sounds/pikachu_buon_ngu.mp3', import.meta.url).href,
 
     // Chữ cái
     letter_a: new URL('../../assets/sounds/chu_a.mp3', import.meta.url).href,
