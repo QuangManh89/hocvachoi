@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@theme {
+  --color-app-bg: #FFF8EC;
+  --color-app-ink: #5A3E36;
+  --color-app-mint: #7ED6C1;
+  --color-app-sun: #FFD25E;
+  --color-app-coral: #FF8A65;
+  --color-app-sky: #4FB3D9;
+  --color-app-lilac: #B69CF2;
+  --color-cat-fur: #FFF1D6;
+  --color-cat-spot: #F6B36B;
+  --color-cat-pink: #FF9FB2;
+  --color-cat-border: #5A3E36;
+  --radius-card: 24px;
+}
+
+:root {
+  --bg: #FFF8EC;
+  --ink: #5A3E36;
+  --mint: #7ED6C1;
+  --sun: #FFD25E;
+  --coral: #FF8A65;
+  --sky: #4FB3D9;
+  --lilac: #B69CF2;
+  --cat-fur: #FFF1D6;
+  --cat-spot: #F6B36B;
+  --cat-pink: #FF9FB2;
+  --radius-card: 24px;
+  --tap-min: 80px;
+}
+
+/* Kiosk Hardening cho trẻ nhỏ trên iOS Safari */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  
+  /* Chống cuộn, chống kéo để tải lại, chống phóng to */
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Vùng chơi game tự quản lý hoàn toàn pointer events */
+.play-area {
+  touch-action: none;
+}
+
+/* Nút bấm lớn tối thiểu 80px cho bé */
+.btn-kid {
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  border-radius: var(--radius-card);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  transition: transform 0.15s ease-out, filter 0.15s ease-out;
+}
+
+.btn-kid:active {
+  transform: scale(0.94);
+}

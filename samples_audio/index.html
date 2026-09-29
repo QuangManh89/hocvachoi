@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nghe Thử Giọng Đọc Mẫu — Học Và Chơi</title>
+  <style>
+    :root {
+      --bg: #FFF8EC;
+      --ink: #5A3E36;
+      --mint: #7ED6C1;
+      --sun: #FFD25E;
+      --coral: #FF8A65;
+      --sky: #4FB3D9;
+      --card-bg: #FFFFFF;
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif; }
+    body { background-color: var(--bg); color: var(--ink); padding: 32px 16px; min-height: 100vh; }
+    .container { max-width: 860px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 32px; }
+    h1 { font-size: 28px; margin-bottom: 8px; color: var(--ink); }
+    p.subtitle { font-size: 16px; color: #8C6D62; margin-bottom: 16px; }
+    .badge { display: inline-block; background-color: var(--mint); color: var(--ink); font-weight: bold; padding: 6px 14px; border-radius: 999px; font-size: 13px; }
+    
+    .section-title { font-size: 20px; margin: 28px 0 16px; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid #EADDC8; padding-bottom: 6px; }
+    
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+    .card { background: var(--card-bg); border-radius: var(--radius); padding: 18px 20px; box-shadow: 0 4px 12px rgba(90, 62, 54, 0.06); border: 2px solid #F3E7D3; display: flex; flex-direction: column; justify-content: space-between; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .card-label { font-weight: bold; font-size: 16px; color: var(--ink); }
+    .card-voice { font-size: 12px; background: #FFF1D6; color: #8C6D62; padding: 2px 8px; border-radius: 6px; }
+    .card-text { font-size: 17px; margin-bottom: 14px; color: #333; line-height: 1.4; background: #FFFDF9; padding: 10px 12px; border-radius: 12px; border-left: 4px solid var(--sun); }
+    audio { width: 100%; height: 40px; border-radius: 8px; }
+
+    .note-box { background: #FFF1D6; border: 2px dashed #F6B36B; border-radius: var(--radius); padding: 16px 20px; margin-top: 32px; font-size: 14px; line-height: 1.6; }
+    .note-box h4 { margin-bottom: 6px; color: var(--ink); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🐱 Nghe Thử Giọng Đọc Mẫu — Học Và Chơi</h1>
+      <p class="subtitle">Thử nghiệm các tệp âm thanh chuyển văn bản thành giọng đọc (TTS) tối ưu cho trẻ 3 tuổi</p>
+      <span class="badge">Đã nén tối ưu & Tốc độ chậm rãi (-10% đến -15%)</span>
+    </header>
+
+    <!-- Nhóm Lời Thoại Mèo Bông -->
+    <div class="section-title">🐱 1. Lời thoại Mèo Bông (Giọng Nữ Hoài My ấm áp)</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Lời chào mở đầu</span>
+          <span class="card-voice">Tốc độ: -10%</span>
+        </div>
+        <div class="card-text">"Chào bạn! Mình là Mèo Bông, chúng mình cùng chơi nào!"</div>
+        <audio controls src="meo_bong_chao.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Khen ngợi khi bé đúng</span>
+          <span class="card-voice">Tốc độ: -5%</span>
+        </div>
+        <div class="card-text">"Giỏi quá! Bạn làm đúng rồi!"</div>
+        <audio controls src="meo_bong_khen.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Động viên khi chọn sai (Không chê)</span>
+          <span class="card-voice">Tốc độ: -10%</span>
+        </div>
+        <div class="card-text">"Không sao đâu, thử lại nhé!"</div>
+        <audio controls src="meo_bong_dong_vien.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Gợi ý khi bé chần chừ (>6s)</span>
+          <span class="card-voice">Tốc độ: -10%</span>
+        </div>
+        <div class="card-text">"Ở đây nè!"</div>
+        <audio controls src="meo_bong_goi_y.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Kết thúc phiên chơi (10 phút)</span>
+          <span class="card-voice">Tốc độ: -12%</span>
+        </div>
+        <div class="card-text">"Mình buồn ngủ rồi, hẹn gặp lại bạn nhé!"</div>
+        <audio controls src="meo_bong_buon_ngu.mp3"></audio>
+      </div>
+    </div>
+
+    <!-- Nhóm Phát Âm Chữ Cái & Từ Minh Họa -->
+    <div class="section-title">🔤 2. Dạy Âm Chữ Cái & Từ Vựng Miền Nam (Dạy Âm trước)</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Âm chữ: A</span>
+          <span class="card-voice">Âm "a"</span>
+        </div>
+        <div class="card-text">"a"</div>
+        <audio controls src="chu_a.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Từ minh họa chữ A</span>
+          <span class="card-voice">cái ao</span>
+        </div>
+        <div class="card-text">"cái ao"</div>
+        <audio controls src="tu_ao.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Âm chữ: B (Dạy âm "bờ")</span>
+          <span class="card-voice">Âm "bờ"</span>
+        </div>
+        <div class="card-text">"bờ"</div>
+        <audio controls src="chu_b.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Từ minh họa chữ B</span>
+          <span class="card-voice">trái bóng</span>
+        </div>
+        <div class="card-text">"trái bóng"</div>
+        <audio controls src="tu_banh.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Âm chữ: Đ (Dạy âm "đờ")</span>
+          <span class="card-voice">Âm "đờ"</span>
+        </div>
+        <div class="card-text">"đờ"</div>
+        <audio controls src="chu_dd.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Từ minh họa chữ Đ</span>
+          <span class="card-voice">cái đèn</span>
+        </div>
+        <div class="card-text">"cái đèn"</div>
+        <audio controls src="tu_den.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Âm chữ: I</span>
+          <span class="card-voice">Âm "i"</span>
+        </div>
+        <div class="card-text">"i"</div>
+        <audio controls src="chu_i.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Từ minh họa chữ I</span>
+          <span class="card-voice">con heo</span>
+        </div>
+        <div class="card-text">"con heo"</div>
+        <audio controls src="tu_heo.mp3"></audio>
+      </div>
+    </div>
+
+    <!-- Nhóm Con Số & Màu Sắc -->
+    <div class="section-title">🔢 3. Con Số & Màu Sắc</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Con số 5</span>
+          <span class="card-voice">năm</span>
+        </div>
+        <div class="card-text">"năm"</div>
+        <audio controls src="so_nam.mp3"></audio>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Màu sắc: Đỏ</span>
+          <span class="card-voice">màu đỏ</span>
+        </div>
+        <div class="card-text">"màu đỏ"</div>
+        <audio controls src="mau_do.mp3"></audio>
+      </div>
+    </div>
+
+    <!-- So sánh giọng Nam -->
+    <div class="section-title">🎙️ 4. Giọng Nam Tham Khảo (Nam Minh Neural)</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">[Giọng Nam] Lời chào Mèo Bông</span>
+          <span class="card-voice">vi-VN-NamMinh</span>
+        </div>
+        <div class="card-text">"Chào bạn! Mình là Mèo Bông, chúng mình cùng chơi nào!"</div>
+        <audio controls src="giong_nam_meo_bong_chao.mp3"></audio>
+      </div>
+    </div>
+
+    <div class="note-box">
+      <h4>💡 Đánh giá kỹ thuật & Lưu ý cho gia đình:</h4>
+      <ul>
+        <li><strong>Độ trong trẻo & Tốc độ:</strong> Giọng nữ <em>Hoài My</em> ở tốc độ -10% đọc rất rõ ràng, ngữ điệu thân thiện và chậm rãi, rất phù hợp cho bé 3 tuổi nghe và lặp lại.</li>
+        <li><strong>Nguyên tắc sư phạm:</strong> Dạy âm ("bờ", "đờ", "a") trước khi dạy tên chữ ("bê", "đê"), đúng chuẩn Tiếng Việt lớp 1 và mục tiêu phát âm sớm.</li>
+        <li><strong>Chạy offline 100%:</strong> Khi hoàn tất, toàn bộ ~115 câu sẽ được script đóng gói sẵn thành file audio tĩnh trong repo, không tốn bất kỳ chi phí API hay kết nối internet nào lúc bé chơi.</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>
