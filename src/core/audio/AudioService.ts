@@ -33,6 +33,29 @@ class AudioService {
     // Số & màu
     number_5: new URL('../../assets/sounds/so_nam.mp3', import.meta.url).href,
     color_red: new URL('../../assets/sounds/mau_do.mp3', import.meta.url).href,
+    color_yellow: new URL('../../assets/sounds/color_yellow.mp3', import.meta.url).href,
+    color_blue: new URL('../../assets/sounds/color_blue.mp3', import.meta.url).href,
+    color_green: new URL('../../assets/sounds/color_green.mp3', import.meta.url).href,
+
+    // Hình dạng
+    shape_circle: new URL('../../assets/sounds/shape_circle.mp3', import.meta.url).href,
+    shape_square: new URL('../../assets/sounds/shape_square.mp3', import.meta.url).href,
+    shape_triangle: new URL('../../assets/sounds/shape_triangle.mp3', import.meta.url).href,
+    shape_star: new URL('../../assets/sounds/shape_star.mp3', import.meta.url).href,
+
+    // Đếm số
+    count_1: new URL('../../assets/sounds/count_1.mp3', import.meta.url).href,
+    count_2: new URL('../../assets/sounds/count_2.mp3', import.meta.url).href,
+    count_3: new URL('../../assets/sounds/count_3.mp3', import.meta.url).href,
+    count_4: new URL('../../assets/sounds/count_4.mp3', import.meta.url).href,
+
+    // Lời nhắc hoạt động
+    prompt_find_red: new URL('../../assets/sounds/prompt_find_red.mp3', import.meta.url).href,
+    prompt_find_circle: new URL('../../assets/sounds/prompt_find_circle.mp3', import.meta.url).href,
+    prompt_count_apples: new URL('../../assets/sounds/prompt_count_apples.mp3', import.meta.url).href,
+    prompt_sort_colors: new URL('../../assets/sounds/prompt_sort_colors.mp3', import.meta.url).href,
+    prompt_match_shapes: new URL('../../assets/sounds/prompt_match_shapes.mp3', import.meta.url).href,
+    cheer_finish: new URL('../../assets/sounds/cheer_finish.mp3', import.meta.url).href,
   }
 
   private constructor() {}
