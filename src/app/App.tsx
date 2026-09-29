@@ -1,17 +1,30 @@
-import React, { useState } from 'react'
-import { Sparkles, Zap, Settings, CheckCircle, ShieldCheck } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Sparkles, Zap, Settings, CheckCircle, ShieldCheck, User } from 'lucide-react'
 import { Pikachu } from '@/components/Pikachu'
 import { audioService } from '@/core/audio/AudioService'
 import { ParentGate } from '@/core/gate/ParentGate'
+import { ProfileModal } from '@/components/ProfileModal'
 import { HomeScreen } from '@/features/home/HomeScreen'
 import { ActivityContainer } from '@/core/activity-engine/ActivityContainer'
+import { MultiQuestionSession } from '@/core/activity-engine/MultiQuestionSession'
 import type { AnyActivityData } from '@/core/activity-engine/types'
+import { db, type Profile } from '@/core/storage/db'
 
 export const App: React.FC = () => {
   const [isUnlocked, setIsUnlocked] = useState(false)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
   const [currentActivity, setCurrentActivity] = useState<AnyActivityData | null>(null)
+  const [isMultiSessionActive, setIsMultiSessionActive] = useState(false)
   const [isParentGateOpen, setIsParentGateOpen] = useState(false)
   const [parentAreaActive, setParentAreaActive] = useState(false)
+
+  // Khởi tạo hồ sơ bé từ Dexie
+  useEffect(() => {
+    db.ensureDefaultProfile().then((prof) => {
+      setProfile(prof)
+    })
+  }, [])
 
   // Mở khóa âm thanh iOS/iPadOS tại lần chạm đầu tiên
   const handleStartApp = () => {
@@ -19,6 +32,10 @@ export const App: React.FC = () => {
     setIsUnlocked(true)
     audioService.playVoice('pikachu_greeting')
   }
+
+  const childName = profile ? profile.nickname : 'Bé Yêu'
+  const ageBand = profile ? profile.ageBand : '3-4'
+  const profileId = profile ? profile.id : 'profile_default'
 
   return (
     <div className="relative w-full h-full flex flex-col justify-between overflow-hidden bg-[#FFF8EC] text-[#5A3E36] select-none">
@@ -46,20 +63,40 @@ export const App: React.FC = () => {
         </div>
       )}
 
-      {/* 2. Điều hướng chính: Nếu chưa chọn bài học thì ở Trang chủ, đã chọn bài thì vào ActivityContainer */}
-      {currentActivity ? (
+      {/* 2. Điều hướng chính: */}
+      {isMultiSessionActive ? (
+        // A. Chế độ Phiên học tổng hợp 12 câu ngẫu nhiên chống lặp bài
+        <MultiQuestionSession
+          profileId={profileId}
+          childName={childName}
+          onBack={() => setIsMultiSessionActive(false)}
+        />
+      ) : currentActivity ? (
+        // B. Chế độ Chơi từng bài học lẻ
         <ActivityContainer
           activity={currentActivity}
           onBack={() => setCurrentActivity(null)}
         />
       ) : (
+        // C. Màn hình Trang Chủ (HomeScreen)
         <HomeScreen
+          childName={childName}
+          ageBand={ageBand}
           onSelectActivity={(activity) => setCurrentActivity(activity)}
           onOpenParentGate={() => setIsParentGateOpen(true)}
+          onOpenProfile={() => setIsProfileModalOpen(true)}
+          onStart12QuestionsSession={() => setIsMultiSessionActive(true)}
         />
       )}
 
-      {/* 3. Cổng Phụ Huynh Modal (Chống chạm nhầm với 2 điểm chạm 3 giây) */}
+      {/* 3. Modal Quản Lý Hồ Sơ & Đổi Tên Bé */}
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        onProfileUpdated={(updated) => setProfile(updated)}
+      />
+
+      {/* 4. Cổng Phụ Huynh Modal (Chống chạm nhầm với 2 điểm chạm 3 giây) */}
       <ParentGate
         isOpen={isParentGateOpen}
         onClose={() => setIsParentGateOpen(false)}
@@ -69,7 +106,7 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* 4. Khu Vực Phụ Huynh (Settings, Tiến trình & Thông số) */}
+      {/* 5. Khu Vực Phụ Huynh */}
       {parentAreaActive && (
         <div className="fixed inset-0 z-50 bg-[#FFF8EC] p-6 overflow-y-auto flex flex-col justify-between select-none">
           <div className="max-w-2xl mx-auto w-full">
@@ -87,21 +124,32 @@ export const App: React.FC = () => {
             </div>
 
             <div className="space-y-4">
+              {/* Thẻ chỉnh sửa hồ sơ bé */}
+              <div className="bg-white p-5 rounded-3xl border-3 border-[#5A3E36]/15 shadow-sm flex justify-between items-center">
+                <div>
+                  <h3 className="font-extrabold text-base flex items-center gap-1.5 text-[#5A3E36]">
+                    <User className="w-5 h-5 text-[#FF8A65]" />
+                    Hồ sơ đang chọn: {childName}
+                  </h3>
+                  <p className="text-xs text-[#8C6D62] mt-0.5">Nhóm tuổi: {ageBand} tuổi</p>
+                </div>
+                <button
+                  onClick={() => setIsProfileModalOpen(true)}
+                  className="px-4 py-2 bg-[#FED000] text-[#5A3E36] rounded-xl font-bold text-sm border-2 border-[#5A3E36] active:scale-95 shadow-sm"
+                >
+                  Đổi tên bé
+                </button>
+              </div>
+
+              {/* Thông tin tính năng */}
               <div className="bg-white p-5 rounded-3xl border-3 border-[#5A3E36]/15 shadow-sm">
                 <h3 className="font-bold text-lg mb-2 flex items-center gap-2 text-[#5A3E36]">
                   <CheckCircle className="w-5 h-5 text-[#7ED6C1]" />
-                  Lát cắt dọc Phase 1a đã hoàn thành
+                  Tính năng Chống Lặp Bài Học (Anti-Duplication)
                 </h3>
-                <p className="text-sm text-[#8C6D62] mb-3">
-                  Đã kích hoạt 5 mẫu hoạt động cốt lõi cho module Màu & Hình và Con Số:
+                <p className="text-sm text-[#8C6D62] leading-relaxed">
+                  Mỗi khi bé hoàn thành câu hỏi, hệ thống ghi nhận lịch sử vào IndexedDB (`itemMastery`). Khi bắt đầu phiên 12 câu, thuật toán sẽ tự động ưu tiên các câu bé chưa học hoặc câu đã học lâu nhất để ôn luyện, không bao giờ trùng lặp liên tục.
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm font-bold text-[#5A3E36]">
-                  <div className="p-2.5 bg-[#FFF8EC] rounded-xl border border-[#5A3E36]/10">🎨 1. Khám phá (explore)</div>
-                  <div className="p-2.5 bg-[#FFF8EC] rounded-xl border border-[#5A3E36]/10">👂 2. Nghe & Chọn (listen_pick)</div>
-                  <div className="p-2.5 bg-[#FFF8EC] rounded-xl border border-[#5A3E36]/10">🧩 3. Ghép bóng (match)</div>
-                  <div className="p-2.5 bg-[#FFF8EC] rounded-xl border border-[#5A3E36]/10">🍎 4. Đếm chạm (tap_count)</div>
-                  <div className="p-2.5 bg-[#FFF8EC] rounded-xl border border-[#5A3E36]/10">🧺 5. Phân loại giỏ (sort)</div>
-                </div>
               </div>
 
               <div className="bg-[#FFF1D6] p-5 rounded-3xl border-3 border-[#F6B36B] text-sm">

@@ -51,7 +51,18 @@ class AudioService {
 
     // Lời nhắc hoạt động
     prompt_find_red: new URL('../../assets/sounds/prompt_find_red.mp3', import.meta.url).href,
+    prompt_find_yellow: new URL('../../assets/sounds/prompt_find_yellow.mp3', import.meta.url).href,
+    prompt_find_blue: new URL('../../assets/sounds/prompt_find_blue.mp3', import.meta.url).href,
+    prompt_find_green: new URL('../../assets/sounds/prompt_find_green.mp3', import.meta.url).href,
     prompt_find_circle: new URL('../../assets/sounds/prompt_find_circle.mp3', import.meta.url).href,
+    prompt_find_square: new URL('../../assets/sounds/prompt_find_square.mp3', import.meta.url).href,
+    prompt_find_triangle: new URL('../../assets/sounds/prompt_find_triangle.mp3', import.meta.url).href,
+    prompt_find_star: new URL('../../assets/sounds/prompt_find_star.mp3', import.meta.url).href,
+    prompt_find_letter_a: new URL('../../assets/sounds/prompt_find_letter_a.mp3', import.meta.url).href,
+    prompt_find_letter_b: new URL('../../assets/sounds/prompt_find_letter_b.mp3', import.meta.url).href,
+    prompt_find_letter_dd: new URL('../../assets/sounds/prompt_find_letter_dd.mp3', import.meta.url).href,
+    prompt_find_letter_i: new URL('../../assets/sounds/prompt_find_letter_i.mp3', import.meta.url).href,
+    prompt_find_number_5: new URL('../../assets/sounds/prompt_find_number_5.mp3', import.meta.url).href,
     prompt_count_apples: new URL('../../assets/sounds/prompt_count_apples.mp3', import.meta.url).href,
     prompt_sort_colors: new URL('../../assets/sounds/prompt_sort_colors.mp3', import.meta.url).href,
     prompt_match_shapes: new URL('../../assets/sounds/prompt_match_shapes.mp3', import.meta.url).href,
