@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { motion } from 'motion/react'
 import type { ExploreActivityData } from '../types'
 import { audioService } from '@/core/audio/AudioService'
+import { ShapeGraphic, isShapeItem } from '@/components/ShapeGraphic'
 
 interface ExploreTemplateProps {
   activity: ExploreActivityData
@@ -59,7 +60,8 @@ export const ExploreTemplate: React.FC<ExploreTemplateProps> = ({
             bgColor === '#FFFFFF' ||
             bgColor === '#FED000' ||
             bgColor === '#FFF8EC' ||
-            bgColor === '#FFF1D6'
+            bgColor === '#FFF1D6' ||
+            bgColor === '#FF80AB'
 
           return (
             <motion.button
@@ -75,9 +77,14 @@ export const ExploreTemplate: React.FC<ExploreTemplateProps> = ({
                 <span className="text-4xl sm:text-5xl font-black text-[#5A3E36] mb-1">
                   {item.displayChar}
                 </span>
+              ) : isShapeItem(item) ? (
+                <div className="mb-2 flex items-center justify-center">
+                  <ShapeGraphic type={item.shapeType || item.id || item.label} size={48} />
+                </div>
               ) : item.icon ? (
                 <span className="text-3xl sm:text-4xl mb-1 drop-shadow-sm">{item.icon}</span>
               ) : null}
+
 
               <span
                 className={`text-base sm:text-lg font-black leading-tight text-center ${

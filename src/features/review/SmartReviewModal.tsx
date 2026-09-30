@@ -10,6 +10,8 @@ import {
   type SessionQuestion,
   type SessionChoice,
 } from '@/core/activity-engine/sessionGenerator'
+import { ShapeGraphic, isShapeItem } from '@/components/ShapeGraphic'
+
 
 interface SmartReviewModalProps {
   isOpen: boolean
@@ -300,7 +302,11 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
                     }`}
                   >
                     {/* Icon hoặc Chấm màu */}
-                    {choice.icon ? (
+                    {isShapeItem(choice) ? (
+                      <div className="mb-1 flex items-center justify-center">
+                        <ShapeGraphic type={choice.id || choice.label} size={42} />
+                      </div>
+                    ) : choice.icon ? (
                       <span className="text-3xl sm:text-4xl drop-shadow-sm">{choice.icon}</span>
                     ) : choice.color ? (
                       <div
@@ -308,6 +314,7 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
                         style={{ backgroundColor: choice.color }}
                       />
                     ) : null}
+
 
                     {/* Nhãn chữ to, dễ đọc */}
                     <span className="font-black text-base sm:text-lg text-[#5A3E36] leading-tight">

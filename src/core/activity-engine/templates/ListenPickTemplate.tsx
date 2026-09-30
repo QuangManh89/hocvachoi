@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { motion } from 'motion/react'
 import type { ListenPickActivityData, ChoiceItem } from '../types'
 import { audioService } from '@/core/audio/AudioService'
+import { ShapeGraphic, isShapeItem } from '@/components/ShapeGraphic'
+
 
 interface ListenPickTemplateProps {
   activity: ListenPickActivityData
@@ -76,11 +78,18 @@ export const ListenPickTemplate: React.FC<ListenPickTemplateProps> = ({
               }`}
               style={{ backgroundColor: choice.color || '#FFFFFF' }}
             >
-              <span className="text-4xl mb-2 drop-shadow-sm">{choice.icon || '🎨'}</span>
+              {isShapeItem(choice) ? (
+                <div className="mb-2 flex items-center justify-center">
+                  <ShapeGraphic type={choice.id || choice.label} size={44} />
+                </div>
+              ) : (
+                <span className="text-4xl mb-2 drop-shadow-sm">{choice.icon || '🎨'}</span>
+              )}
               <span className="text-xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
                 {choice.label}
               </span>
             </motion.button>
+
           )
         })}
       </div>

@@ -151,7 +151,7 @@ export const QUESTION_POOL: SessionQuestion[] = [
     promptAudio: 'prompt_find_rectangle',
     choices: [
       { id: 's_circle', label: 'Hình Tròn', audioId: 'shape_circle', color: '#FF5252', icon: '🔴', isCorrect: false },
-      { id: 's_rectangle', label: 'Hình Chữ Nhật', audioId: 'shape_rectangle', color: '#66BB6A', icon: '🟩', isCorrect: true },
+      { id: 's_rectangle', label: 'Hình Chữ Nhật', audioId: 'shape_rectangle', color: '#66BB6A', icon: '▭', isCorrect: true },
       { id: 's_star', label: 'Ngôi Sao', audioId: 'shape_star', color: '#FED000', icon: '⭐', isCorrect: false },
     ],
   },
@@ -162,10 +162,11 @@ export const QUESTION_POOL: SessionQuestion[] = [
     promptAudio: 'prompt_find_heart',
     choices: [
       { id: 's_triangle', label: 'Hình Tam Giác', audioId: 'shape_triangle', color: '#FED000', icon: '🔺', isCorrect: false },
-      { id: 's_heart', label: 'Hình Trái Tim', audioId: 'shape_heart', color: '#E91E63', icon: '💖', isCorrect: true },
+      { id: 's_heart', label: 'Hình Trái Tim', audioId: 'shape_heart', color: '#FF80AB', icon: '❤️', isCorrect: true },
       { id: 's_square', label: 'Hình Vuông', audioId: 'shape_square', color: '#448AFF', icon: '🟦', isCorrect: false },
     ],
   },
+
 
   // --- 3. CON SỐ (1 - 10) ---
   {

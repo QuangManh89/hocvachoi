@@ -31,6 +31,7 @@ export interface ExploreItem {
   audioId: string
   color?: string
   icon?: string
+  shapeType?: string
   displayChar?: string
   subLabel?: string
 }
@@ -47,8 +48,10 @@ export interface ChoiceItem {
   audioId: string
   color?: string
   icon?: string
+  shapeType?: string
   isCorrect: boolean
 }
+
 
 export interface ListenPickActivityData extends ActivityBase {
   template: 'listen_pick'

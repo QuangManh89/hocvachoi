@@ -63,13 +63,14 @@ export const colorsShapesActivities: AnyActivityData[] = [
     promptAudio: 'pikachu_greeting',
     rewardStars: 1,
     items: [
-      { id: 'circle', label: 'Hình Tròn', audioId: 'shape_circle', color: '#FF5252', icon: '🔴' },
-      { id: 'square', label: 'Hình Vuông', audioId: 'shape_square', color: '#448AFF', icon: '🟦' },
-      { id: 'triangle', label: 'Hình Tam Giác', audioId: 'shape_triangle', color: '#FED000', icon: '🔺' },
-      { id: 'rectangle', label: 'Hình Chữ Nhật', audioId: 'shape_rectangle', color: '#66BB6A', icon: '🟩' },
-      { id: 'star', label: 'Ngôi Sao', audioId: 'shape_star', color: '#FF9800', icon: '⭐' },
-      { id: 'heart', label: 'Trái Tim', audioId: 'shape_heart', color: '#E91E63', icon: '💖' },
+      { id: 'circle', label: 'Hình Tròn', audioId: 'shape_circle', color: '#FF5252', shapeType: 'circle', icon: '🔴' },
+      { id: 'square', label: 'Hình Vuông', audioId: 'shape_square', color: '#448AFF', shapeType: 'square', icon: '🟦' },
+      { id: 'triangle', label: 'Hình Tam Giác', audioId: 'shape_triangle', color: '#FED000', shapeType: 'triangle', icon: '🔺' },
+      { id: 'rectangle', label: 'Hình Chữ Nhật', audioId: 'shape_rectangle', color: '#66BB6A', shapeType: 'rectangle', icon: '▭' },
+      { id: 'star', label: 'Ngôi Sao', audioId: 'shape_star', color: '#FF9800', shapeType: 'star', icon: '⭐' },
+      { id: 'heart', label: 'Trái Tim', audioId: 'shape_heart', color: '#FF80AB', shapeType: 'heart', icon: '❤️' },
     ],
+
   },
 
   // 4. Mẫu MATCH: Ghép hình với bóng
