@@ -11,6 +11,10 @@ import { getStreakData } from '@/core/mastery/streakTracker'
 import { XylophoneModal } from '@/features/music/XylophoneModal'
 import { ColoringStudioModal } from '@/features/coloring/ColoringStudioModal'
 import { SmartReviewModal } from '@/features/review/SmartReviewModal'
+import { PuzzleGameModal } from '@/features/puzzle/PuzzleGameModal'
+import { StoryModal } from '@/features/story/StoryModal'
+import { PikachuHouseModal } from '@/features/house/PikachuHouseModal'
+
 
 
 interface HomeScreenProps {
@@ -47,6 +51,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [isXylophoneOpen, setIsXylophoneOpen] = useState(false)
   const [isColoringOpen, setIsColoringOpen] = useState(false)
   const [isReviewOpen, setIsReviewOpen] = useState(false)
+  const [isPuzzleOpen, setIsPuzzleOpen] = useState(false)
+  const [isStoryOpen, setIsStoryOpen] = useState(false)
+  const [isHouseOpen, setIsHouseOpen] = useState(false)
+
 
 
   useEffect(() => {
@@ -229,14 +237,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </button>
       </div>
 
-      {/* 3.1 CÁC KHÔNG GIAN SÁNG TẠO & ÔN TẬP: BÉ TẬP TÔ, ĐÀN GÕ & ÔN TẬP NHẸ */}
-      <div className="w-full max-w-xl mx-auto my-2 grid grid-cols-3 gap-2.5 z-10">
+      {/* 3.1 CÁC KHÔNG GIAN SÁNG TẠO, TƯ DUY & GIẢI TRÍ */}
+      <div className="w-full max-w-xl mx-auto my-2 grid grid-cols-3 gap-2 sm:gap-2.5 z-10">
         {/* 1. Bé Tập Tô */}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsColoringOpen(true)}
-          className="btn-kid min-h-[74px] bg-[#FFF3E0] hover:bg-[#FFE0B2] border-3 border-[#5A3E36] rounded-2xl p-2 flex flex-col items-center justify-center text-center shadow-sm transition-all"
+          className="btn-kid min-h-[72px] bg-[#FFF3E0] hover:bg-[#FFE0B2] border-3 border-[#5A3E36] rounded-2xl p-1.5 sm:p-2 flex flex-col items-center justify-center text-center shadow-sm transition-all"
         >
           <span className="text-2xl drop-shadow-sm">🖍️</span>
           <span className="text-xs font-black text-[#5A3E36] mt-0.5 leading-tight">Bé Tập Tô</span>
@@ -248,25 +256,62 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsXylophoneOpen(true)}
-          className="btn-kid min-h-[74px] bg-[#E1F5FE] hover:bg-[#B3E5FC] border-3 border-[#5A3E36] rounded-2xl p-2 flex flex-col items-center justify-center text-center shadow-sm transition-all"
+          className="btn-kid min-h-[72px] bg-[#E1F5FE] hover:bg-[#B3E5FC] border-3 border-[#5A3E36] rounded-2xl p-1.5 sm:p-2 flex flex-col items-center justify-center text-center shadow-sm transition-all"
         >
           <span className="text-2xl drop-shadow-sm">🎹</span>
           <span className="text-xs font-black text-[#5A3E36] mt-0.5 leading-tight">Đàn Gõ</span>
           <span className="text-[10px] font-bold text-[#8C6D62] hidden sm:inline">8 phím đồng dao</span>
         </motion.button>
 
-        {/* 3. Ôn Tập Nhẹ */}
+        {/* 3. Ghép Hình & Tư Duy */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsPuzzleOpen(true)}
+          className="btn-kid min-h-[72px] bg-[#F3E5F5] hover:bg-[#E1BEE7] border-3 border-[#5A3E36] rounded-2xl p-1.5 sm:p-2 flex flex-col items-center justify-center text-center shadow-sm transition-all"
+        >
+          <span className="text-2xl drop-shadow-sm">🧩</span>
+          <span className="text-xs font-black text-[#5A3E36] mt-0.5 leading-tight">Ghép Hình</span>
+          <span className="text-[10px] font-bold text-[#8C6D62] hidden sm:inline">Tư duy logic</span>
+        </motion.button>
+
+        {/* 4. Chuyện Kể Tương Tác */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsStoryOpen(true)}
+          className="btn-kid min-h-[72px] bg-[#FFFDE7] hover:bg-[#FFF9C4] border-3 border-[#5A3E36] rounded-2xl p-1.5 sm:p-2 flex flex-col items-center justify-center text-center shadow-sm transition-all"
+        >
+          <span className="text-2xl drop-shadow-sm">📚</span>
+          <span className="text-xs font-black text-[#5A3E36] mt-0.5 leading-tight">Chuyện Kể</span>
+          <span className="text-[10px] font-bold text-[#8C6D62] hidden sm:inline">Khám phá tranh</span>
+        </motion.button>
+
+        {/* 5. Nhà Pikachu */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsHouseOpen(true)}
+          className="btn-kid min-h-[72px] bg-[#E0F2F1] hover:bg-[#B2DFDB] border-3 border-[#5A3E36] rounded-2xl p-1.5 sm:p-2 flex flex-col items-center justify-center text-center shadow-sm transition-all"
+        >
+          <span className="text-2xl drop-shadow-sm">🏠</span>
+          <span className="text-xs font-black text-[#5A3E36] mt-0.5 leading-tight">Nhà Pikachu</span>
+          <span className="text-[10px] font-bold text-[#8C6D62] hidden sm:inline">Dán sticker</span>
+        </motion.button>
+
+        {/* 6. Ôn Tập Nhẹ */}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsReviewOpen(true)}
-          className="btn-kid min-h-[74px] bg-[#E8F5E9] hover:bg-[#C8E6C9] border-3 border-[#5A3E36] rounded-2xl p-2 flex flex-col items-center justify-center text-center shadow-sm transition-all"
+          className="btn-kid min-h-[72px] bg-[#E8F5E9] hover:bg-[#C8E6C9] border-3 border-[#5A3E36] rounded-2xl p-1.5 sm:p-2 flex flex-col items-center justify-center text-center shadow-sm transition-all"
         >
           <span className="text-2xl drop-shadow-sm">🔄</span>
           <span className="text-xs font-black text-[#5A3E36] mt-0.5 leading-tight">Ôn Tập Nhẹ</span>
           <span className="text-[10px] font-bold text-[#8C6D62] hidden sm:inline">5 câu nhớ bài</span>
         </motion.button>
       </div>
+
 
       {/* 4. Tab Chọn Module Từng Bài Học Lẻ */}
 
@@ -457,6 +502,28 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             .count()
             .then(setTotalStars)
         }}
+      />
+
+      {/* Trò Chơi Ghép Hình & Tư Duy Modal */}
+      <PuzzleGameModal
+        isOpen={isPuzzleOpen}
+        childName={childName}
+        onClose={() => setIsPuzzleOpen(false)}
+      />
+
+      {/* Chuyện Kể Tương Tác Modal */}
+      <StoryModal
+        isOpen={isStoryOpen}
+        childName={childName}
+        onClose={() => setIsStoryOpen(false)}
+      />
+
+      {/* Căn Phòng Của Pikachu Modal */}
+      <PikachuHouseModal
+        isOpen={isHouseOpen}
+        profileId={profileId}
+        childName={childName}
+        onClose={() => setIsHouseOpen(false)}
       />
     </div>
   )
