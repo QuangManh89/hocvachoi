@@ -20,20 +20,36 @@ export const ListenPickTemplate: React.FC<ListenPickTemplateProps> = ({
   const handleSelectChoice = (choice: ChoiceItem) => {
     setSelectedId(choice.id)
 
-    if (choice.isCorrect) {
-      // Đúng rồi!
-      audioService.playVoice('cat_praise', () => {
-        onComplete()
-      })
-      onFeedback('Giỏi quá! Đúng rồi!', 'cheer')
-    } else {
-      // Bé chọn chưa đúng -> Áp dụng chế độ ERRORLESS theo Plan.md
-      // Không có "sai", không trừ điểm, Pikachu động viên và đáp án đúng tự nhấp nháy sáng
-      setHasWrongAttempt(true)
-      audioService.playVoice('cat_encourage')
-      onFeedback('Thử lại nhé, ở đây nè!', 'encourage')
+    // 1. Pikachu nói và hiển thị ngay tên số / chữ cái bé vừa bấm
+    onFeedback(`${choice.label}!`, 'talk')
+
+    let isHandled = false
+    const proceedFeedback = () => {
+      if (isHandled) return
+      isHandled = true
+      if (choice.isCorrect) {
+        audioService.playVoice('cat_praise', () => {
+          onComplete()
+        })
+        onFeedback('Giỏi quá! Đúng rồi!', 'cheer')
+      } else {
+        setHasWrongAttempt(true)
+        setTimeout(() => {
+          audioService.playVoice('cat_encourage')
+          onFeedback('Thử lại nhé, ở đây nè!', 'encourage')
+        }, 150)
+      }
     }
+
+    // 2. Đọc to số / chữ cái đó cho bé nghe
+    audioService.playChoice(choice.audioId, choice.label, () => {
+      proceedFeedback()
+    })
+
+    // Timeout an toàn (1.3s)
+    setTimeout(proceedFeedback, 1300)
   }
+
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center w-full max-w-xl mx-auto p-2">

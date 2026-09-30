@@ -85,10 +85,31 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
   }
 
   // Khi bé chọn một đáp án
-  const handleChoiceSelect = async (choice: SessionChoice) => {
+  const handleChoiceSelect = (choice: SessionChoice) => {
     if (selectedChoiceId && choice.isCorrect) return // Tránh chạm liên tiếp
     setSelectedChoiceId(choice.id)
 
+    // 1. Pikachu nói và hiển thị ngay tên số / chữ cái bé vừa bấm để bé nghe và ghi nhớ!
+    setPikaState('talk')
+    setSpeechText(`${choice.label}!`)
+
+    let isHandled = false
+    const proceedFeedback = () => {
+      if (isHandled) return
+      isHandled = true
+      handlePostChoiceFeedback(choice)
+    }
+
+    // 2. Phát âm thanh đọc to số / chữ cái đó (ví dụ "Số 8", "Chữ A", ...)
+    audioService.playChoice(choice.audioId, choice.label, () => {
+      proceedFeedback()
+    })
+
+    // Timeout dự phòng an toàn (1.3s)
+    setTimeout(proceedFeedback, 1300)
+  }
+
+  const handlePostChoiceFeedback = async (choice: SessionChoice) => {
     if (choice.isCorrect) {
       // ĐÚNG RỒI!
       setPikaState('cheer')
@@ -111,25 +132,28 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
         console.warn('Lỗi ghi itemMastery:', e)
       }
 
-      // Chuyển sang câu tiếp theo sau 1.2 giây
+      // Chuyển sang câu tiếp theo sau 1.3 giây
       setTimeout(() => {
         if (currentIndex + 1 < questions.length) {
           const nextIdx = currentIndex + 1
           setCurrentIndex(nextIdx)
           playQuestion(questions[nextIdx])
         } else {
-          // Hoàn thành cả 12 câu!
+          // Hoàn thành cả 15 câu!
           handleFinishSession()
         }
-      }, 1200)
+      }, 1300)
     } else {
-      // CHƯA ĐÚNG -> Áp dụng chế độ ERRORLESS
+      // CHƯA ĐÚNG -> Bé đã nghe xong số/chữ bé vừa bấm, giờ Pikachu động viên bé tìm lại
       setHasWrongAttempt(true)
-      setPikaState('encourage')
-      setSpeechText('Thử lại nhé, ở đây nè!')
-      audioService.playVoice('cat_encourage')
+      setTimeout(() => {
+        setPikaState('encourage')
+        setSpeechText('Thử lại nhé, ở đây nè!')
+        audioService.playVoice('cat_encourage')
+      }, 150)
     }
   }
+
 
   // Khi hoàn thành trọn vẹn 15 câu
   const handleFinishSession = async () => {

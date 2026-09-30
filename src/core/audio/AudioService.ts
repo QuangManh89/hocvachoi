@@ -541,8 +541,36 @@ class AudioService {
   }
 
   /**
+   * Đọc to một từ hoặc văn bản tiếng Việt bất kỳ (sử dụng file âm thanh nếu có, hoặc Web Speech vi-VN)
+   */
+  public speakText(text: string, onEnd?: VoiceEndCallback): void {
+    if (this.staticAudioMap[text]) {
+      this.playVoice(text, onEnd)
+    } else {
+      this.stopVoice()
+      this.unlock()
+      this.fallbackWebSpeech(text, onEnd)
+    }
+  }
+
+  /**
+   * Đọc to lựa chọn bé bấm vào (số, chữ cái, màu sắc, hình khối...)
+   * Nếu có audioId trong kho âm thanh thì phát file audio chuẩn, nếu không sẽ đọc nhãn (label) tiếng Việt
+   */
+  public playChoice(audioId?: string, label?: string, onEnd?: VoiceEndCallback): void {
+    if (audioId && this.staticAudioMap[audioId]) {
+      this.playVoice(audioId, onEnd)
+    } else if (label) {
+      this.speakText(label, onEnd)
+    } else {
+      onEnd?.()
+    }
+  }
+
+  /**
    * Fallback tổng hợp giọng nói Web Speech cho môi trường dev khi chưa có file âm thanh
    */
+
   private fallbackWebSpeech(text: string, onEnd?: VoiceEndCallback) {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel()

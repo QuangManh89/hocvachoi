@@ -83,10 +83,31 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
     }
   }
 
-  const handleChoiceSelect = async (choice: SessionChoice) => {
+  const handleChoiceSelect = (choice: SessionChoice) => {
     if (selectedChoiceId && choice.isCorrect) return
     setSelectedChoiceId(choice.id)
 
+    // 1. Pikachu nói và hiển thị ngay tên số / chữ cái bé vừa bấm để bé nghe và ghi nhớ!
+    setPikaState('talk')
+    setSpeechText(`${choice.label}!`)
+
+    let isHandled = false
+    const proceedFeedback = () => {
+      if (isHandled) return
+      isHandled = true
+      handlePostChoiceFeedback(choice)
+    }
+
+    // 2. Phát âm thanh đọc to số / chữ cái bé vừa bấm
+    audioService.playChoice(choice.audioId, choice.label, () => {
+      proceedFeedback()
+    })
+
+    // Timeout dự phòng an toàn (1.3s)
+    setTimeout(proceedFeedback, 1300)
+  }
+
+  const handlePostChoiceFeedback = async (choice: SessionChoice) => {
     if (choice.isCorrect) {
       // Đúng rồi!
       setPikaState('cheer')
@@ -127,15 +148,18 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
             origin: { y: 0.6 },
           })
         }
-      }, 1200)
+      }, 1300)
     } else {
       // Chưa đúng -> Errorless
       setHasWrongAttempt(true)
-      setPikaState('encourage')
-      setSpeechText('Thử lại nhé, ở đây nè!')
-      audioService.playVoice('cat_encourage')
+      setTimeout(() => {
+        setPikaState('encourage')
+        setSpeechText('Thử lại nhé, ở đây nè!')
+        audioService.playVoice('cat_encourage')
+      }, 150)
     }
   }
+
 
   if (!isOpen) return null
 
