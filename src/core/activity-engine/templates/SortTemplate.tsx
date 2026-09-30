@@ -16,14 +16,23 @@ export const SortTemplate: React.FC<SortTemplateProps> = ({
 }) => {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
   const [sortedItemIds, setSortedItemIds] = useState<Set<string>>(new Set())
+  const [isCompleted, setIsCompleted] = useState(false)
+
+  React.useEffect(() => {
+    setSelectedItemId(null)
+    setSortedItemIds(new Set())
+    setIsCompleted(false)
+  }, [activity.id])
 
   const handleSelectItem = (item: SortItem) => {
-    if (sortedItemIds.has(item.id)) return
+    if (isCompleted || sortedItemIds.has(item.id)) return
     setSelectedItemId(item.id)
     onFeedback(`Bé bỏ ${item.label} vào giỏ nhé!`, 'talk')
   }
 
   const handleSelectBucket = (bucket: SortBucket) => {
+    if (isCompleted) return
+
     if (!selectedItemId) {
       onFeedback('Bé chọn đồ vật ở trên trước nhé!', 'think')
       return
@@ -43,6 +52,7 @@ export const SortTemplate: React.FC<SortTemplateProps> = ({
       onFeedback('Chính xác! Giỏi quá!', 'cheer')
 
       if (nextSorted.size === activity.items.length) {
+        setIsCompleted(true)
         setTimeout(() => {
           onComplete()
         }, 1200)

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { motion } from 'motion/react'
 import type { ListenPickActivityData, ChoiceItem } from '../types'
 import { audioService } from '@/core/audio/AudioService'
@@ -18,16 +18,31 @@ export const ListenPickTemplate: React.FC<ListenPickTemplateProps> = ({
 }) => {
   const [hasWrongAttempt, setHasWrongAttempt] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [isQuestionSolved, setIsQuestionSolved] = useState(false)
+  const choiceActionTokenRef = useRef(0)
+
+  useEffect(() => {
+    setHasWrongAttempt(false)
+    setSelectedId(null)
+    setIsQuestionSolved(false)
+    choiceActionTokenRef.current++
+  }, [activity.id])
 
   const handleSelectChoice = (choice: ChoiceItem) => {
+    if (isQuestionSolved) return
+    if (choice.isCorrect) {
+      setIsQuestionSolved(true)
+    }
+
     setSelectedId(choice.id)
+    const actionToken = ++choiceActionTokenRef.current
 
     // 1. Pikachu nói và hiển thị ngay tên số / chữ cái bé vừa bấm
     onFeedback(`${choice.label}!`, 'talk')
 
     let isHandled = false
     const proceedFeedback = () => {
-      if (isHandled) return
+      if (isHandled || choiceActionTokenRef.current !== actionToken) return
       isHandled = true
       if (choice.isCorrect) {
         audioService.playVoice('cat_praise', () => {
@@ -37,6 +52,7 @@ export const ListenPickTemplate: React.FC<ListenPickTemplateProps> = ({
       } else {
         setHasWrongAttempt(true)
         setTimeout(() => {
+          if (choiceActionTokenRef.current !== actionToken) return
           audioService.playVoice('cat_encourage')
           onFeedback('Thử lại nhé, ở đây nè!', 'encourage')
         }, 150)

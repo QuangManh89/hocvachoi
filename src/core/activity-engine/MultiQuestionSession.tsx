@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import confetti from 'canvas-confetti'
 import { ArrowLeft, Volume2, Sparkles, Home, RotateCcw, Star } from 'lucide-react'
@@ -31,6 +31,8 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
   const [speechText, setSpeechText] = useState('Bắt đầu nào!')
   const [hasWrongAttempt, setHasWrongAttempt] = useState(false)
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null)
+  const [isQuestionSolved, setIsQuestionSolved] = useState(false)
+  const choiceActionTokenRef = useRef(0)
   const [isSessionFinished, setIsSessionFinished] = useState(false)
   const [awardedSticker, setAwardedSticker] = useState<Sticker | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -40,6 +42,8 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
   const loadNewSession = async () => {
     setIsLoading(true)
     setIsSessionFinished(false)
+    setIsQuestionSolved(false)
+    choiceActionTokenRef.current++
     setAwardedSticker(null)
     setCurrentIndex(0)
     setHasWrongAttempt(false)
@@ -60,6 +64,8 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
 
   // Phát câu hỏi hiện tại
   const playQuestion = (q: SessionQuestion) => {
+    setIsQuestionSolved(false)
+    choiceActionTokenRef.current++
     setSpeechText(q.promptText)
     setPikaState('talk')
     setHasWrongAttempt(false)
@@ -88,8 +94,16 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
 
   // Khi bé chọn một đáp án
   const handleChoiceSelect = (choice: SessionChoice) => {
-    if (selectedChoiceId && choice.isCorrect) return // Tránh chạm liên tiếp
+    // Nếu câu hỏi đã giải quyết xong và đang chờ chuyển câu thì bỏ qua chạm tiếp
+    if (isQuestionSolved) return
+
+    // Khi chạm đúng, khóa ngay để tránh thao tác kép trong lúc chúc mừng
+    if (choice.isCorrect) {
+      setIsQuestionSolved(true)
+    }
+
     setSelectedChoiceId(choice.id)
+    const actionToken = ++choiceActionTokenRef.current
 
     // 1. Pikachu nói và hiển thị ngay tên số / chữ cái bé vừa bấm để bé nghe và ghi nhớ!
     setPikaState('talk')
@@ -97,9 +111,9 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
 
     let isHandled = false
     const proceedFeedback = () => {
-      if (isHandled) return
+      if (isHandled || choiceActionTokenRef.current !== actionToken) return
       isHandled = true
-      handlePostChoiceFeedback(choice)
+      handlePostChoiceFeedback(choice, actionToken)
     }
 
     // 2. Phát âm thanh đọc to số / chữ cái đó (ví dụ "Số 8", "Chữ A", ...)
@@ -111,7 +125,7 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
     setTimeout(proceedFeedback, 1300)
   }
 
-  const handlePostChoiceFeedback = async (choice: SessionChoice) => {
+  const handlePostChoiceFeedback = async (choice: SessionChoice, actionToken: number) => {
     if (choice.isCorrect) {
       // ĐÚNG RỒI!
       setPikaState('cheer')
@@ -149,6 +163,7 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
       // CHƯA ĐÚNG -> Bé đã nghe xong số/chữ bé vừa bấm, giờ Pikachu động viên bé tìm lại
       setHasWrongAttempt(true)
       setTimeout(() => {
+        if (choiceActionTokenRef.current !== actionToken) return
         setPikaState('encourage')
         setSpeechText('Thử lại nhé, ở đây nè!')
         audioService.playVoice('cat_encourage')

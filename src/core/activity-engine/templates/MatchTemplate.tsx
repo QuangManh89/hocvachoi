@@ -17,19 +17,27 @@ export const MatchTemplate: React.FC<MatchTemplateProps> = ({
 }) => {
   const [selectedShapeId, setSelectedShapeId] = useState<string | null>(null)
   const [matchedIds, setMatchedIds] = useState<Set<string>>(new Set())
+  const [isCompleted, setIsCompleted] = useState(false)
 
   // Trộn thứ tự các bóng để trẻ tìm kiếm
-  const [shadowPairs] = useState(() => [...activity.pairs].reverse())
+  const [shadowPairs, setShadowPairs] = useState(() => [...activity.pairs].reverse())
+
+  React.useEffect(() => {
+    setSelectedShapeId(null)
+    setMatchedIds(new Set())
+    setIsCompleted(false)
+    setShadowPairs([...activity.pairs].reverse())
+  }, [activity.id])
 
   const handleSelectShape = (pair: MatchPair) => {
-    if (matchedIds.has(pair.id)) return
+    if (isCompleted || matchedIds.has(pair.id)) return
     setSelectedShapeId(pair.id)
     audioService.playVoice(pair.audioId)
     onFeedback(pair.label, 'talk')
   }
 
   const handleSelectShadow = (shadowPair: MatchPair) => {
-    if (matchedIds.has(shadowPair.id)) return
+    if (isCompleted || matchedIds.has(shadowPair.id)) return
 
     if (!selectedShapeId) {
       onFeedback('Bé chạm vào hình màu trước nhé!', 'think')
@@ -46,6 +54,7 @@ export const MatchTemplate: React.FC<MatchTemplateProps> = ({
       onFeedback('Đúng rồi! Bạn giỏi quá!', 'cheer')
 
       if (nextMatched.size === activity.pairs.length) {
+        setIsCompleted(true)
         setTimeout(() => {
           onComplete()
         }, 1200)

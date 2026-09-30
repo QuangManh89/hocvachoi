@@ -16,6 +16,12 @@ export const ExploreTemplate: React.FC<ExploreTemplateProps> = ({
   onFeedback,
 }) => {
   const [exploredIds, setExploredIds] = useState<Set<string>>(new Set())
+  const [isCompleted, setIsCompleted] = useState(false)
+
+  React.useEffect(() => {
+    setExploredIds(new Set())
+    setIsCompleted(false)
+  }, [activity.id])
 
   const handleTapItem = (item: typeof activity.items[0]) => {
     // 1. Phát âm thanh
@@ -28,7 +34,8 @@ export const ExploreTemplate: React.FC<ExploreTemplateProps> = ({
     setExploredIds(nextSet)
 
     // Nếu đã khám phá hết tất cả các mục
-    if (nextSet.size === activity.items.length) {
+    if (nextSet.size === activity.items.length && !isCompleted) {
+      setIsCompleted(true)
       setTimeout(() => {
         onComplete()
       }, 1400)

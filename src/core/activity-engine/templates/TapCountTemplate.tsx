@@ -16,6 +16,13 @@ export const TapCountTemplate: React.FC<TapCountTemplateProps> = ({
 }) => {
   const [countedCount, setCountedCount] = useState(0)
   const [countedIndices, setCountedIndices] = useState<number[]>([])
+  const [isCompleted, setIsCompleted] = useState(false)
+
+  React.useEffect(() => {
+    setCountedCount(0)
+    setCountedIndices([])
+    setIsCompleted(false)
+  }, [activity.id])
 
   const total = activity.targetCount || 5
   const countAudios = [
@@ -44,7 +51,7 @@ export const TapCountTemplate: React.FC<TapCountTemplateProps> = ({
   ]
 
   const handleTapApple = (index: number) => {
-    if (countedIndices.includes(index)) return
+    if (isCompleted || countedCount >= total || countedIndices.includes(index)) return
 
     const nextCount = countedCount + 1
     const nextIndices = [...countedIndices, index]
@@ -58,6 +65,7 @@ export const TapCountTemplate: React.FC<TapCountTemplateProps> = ({
     onFeedback(label, nextCount === total ? 'cheer' : 'talk')
 
     if (nextCount === total) {
+      setIsCompleted(true)
       setTimeout(() => {
         onComplete()
       }, 1500)

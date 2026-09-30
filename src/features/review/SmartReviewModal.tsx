@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'motion/react'
 import confetti from 'canvas-confetti'
 import { X, Volume2, Star, RotateCcw, CheckCircle2 } from 'lucide-react'
@@ -31,6 +31,8 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
   const [pikaState, setPikaState] = useState<PikachuState>('wave')
   const [speechText, setSpeechText] = useState('Ôn tập cùng tớ nào!')
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null)
+  const [isQuestionSolved, setIsQuestionSolved] = useState(false)
+  const choiceActionTokenRef = useRef(0)
   const [hasWrongAttempt, setHasWrongAttempt] = useState(false)
   const [isFinished, setIsFinished] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -39,6 +41,8 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
   const loadQuestions = async () => {
     setIsLoading(true)
     setIsFinished(false)
+    setIsQuestionSolved(false)
+    choiceActionTokenRef.current++
     setCurrentIndex(0)
     setEarnedStars(0)
     setSelectedChoiceId(null)
@@ -60,6 +64,8 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
   }, [isOpen, profileId])
 
   const playQuestion = (q: SessionQuestion) => {
+    setIsQuestionSolved(false)
+    choiceActionTokenRef.current++
     setSpeechText(q.promptText)
     setPikaState('talk')
     setSelectedChoiceId(null)
@@ -86,8 +92,16 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
   }
 
   const handleChoiceSelect = (choice: SessionChoice) => {
-    if (selectedChoiceId && choice.isCorrect) return
+    // Nếu câu hỏi đã giải quyết xong và đang chờ chuyển câu thì bỏ qua chạm tiếp
+    if (isQuestionSolved) return
+
+    // Khi chạm đúng, khóa ngay để tránh thao tác kép trong lúc chúc mừng
+    if (choice.isCorrect) {
+      setIsQuestionSolved(true)
+    }
+
     setSelectedChoiceId(choice.id)
+    const actionToken = ++choiceActionTokenRef.current
 
     // 1. Pikachu nói và hiển thị ngay tên số / chữ cái bé vừa bấm để bé nghe và ghi nhớ!
     setPikaState('talk')
@@ -95,9 +109,9 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
 
     let isHandled = false
     const proceedFeedback = () => {
-      if (isHandled) return
+      if (isHandled || choiceActionTokenRef.current !== actionToken) return
       isHandled = true
-      handlePostChoiceFeedback(choice)
+      handlePostChoiceFeedback(choice, actionToken)
     }
 
     // 2. Phát âm thanh đọc to số / chữ cái bé vừa bấm
@@ -109,7 +123,7 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
     setTimeout(proceedFeedback, 1300)
   }
 
-  const handlePostChoiceFeedback = async (choice: SessionChoice) => {
+  const handlePostChoiceFeedback = async (choice: SessionChoice, actionToken: number) => {
     if (choice.isCorrect) {
       // Đúng rồi!
       setPikaState('cheer')
@@ -155,6 +169,7 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
       // Chưa đúng -> Errorless
       setHasWrongAttempt(true)
       setTimeout(() => {
+        if (choiceActionTokenRef.current !== actionToken) return
         setPikaState('encourage')
         setSpeechText('Thử lại nhé, ở đây nè!')
         audioService.playVoice('cat_encourage')

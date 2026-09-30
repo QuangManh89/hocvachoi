@@ -220,6 +220,7 @@ export const PuzzleGameModal: React.FC<PuzzleGameModalProps> = ({
   const currentPattern = PATTERN_PUZZLES[patternIdx]
 
   const handleSelectPatternOption = (isCorrect: boolean) => {
+    if (patternSolved) return
     if (isCorrect) {
       audioService.playSnap()
       setPatternSolved(true)
