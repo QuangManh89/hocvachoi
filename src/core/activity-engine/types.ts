@@ -6,6 +6,7 @@ export type ActivityTemplateType =
   | 'match'
   | 'tap_count'
   | 'sort'
+  | 'trace'
 
 export type ModuleType = 'colors_shapes' | 'numbers' | 'alphabet'
 
@@ -13,7 +14,7 @@ export const ActivityBaseSchema = z.object({
   id: z.string(),
   title: z.string(),
   module: z.enum(['colors_shapes', 'numbers', 'alphabet']),
-  template: z.enum(['explore', 'listen_pick', 'match', 'tap_count', 'sort']),
+  template: z.enum(['explore', 'listen_pick', 'match', 'tap_count', 'sort', 'trace']),
   ageMin: z.number().default(2),
   learningGoal: z.string(),
   promptText: z.string(),
@@ -109,9 +110,33 @@ export interface SortActivityData extends ActivityBase {
   items: SortItem[]
 }
 
+// 6. Template: Trace (Tô nét Chữ & Số)
+export interface TracePoint {
+  x: number // Phần trăm toạ độ X (0 - 100)
+  y: number // Phần trăm toạ độ Y (0 - 100)
+}
+
+export interface TraceStroke {
+  id: string
+  label?: string
+  guidePathD?: string // SVG path string để vẽ đường đứt nét hướng dẫn
+  points: TracePoint[] // Danh sách các điểm mốc cần chạm qua
+}
+
+export interface TraceActivityData extends ActivityBase {
+  template: 'trace'
+  displayChar: string // Ký tự hiển thị lớn (VD: 'A', 'O', '1', '2')
+  charAudio: string   // Mã audio phát âm (VD: 'letter_a', 'count_1')
+  subLabel?: string   // Từ gợi nhớ (VD: 'Cái ao', 'Một ông mặt trời')
+  strokes: TraceStroke[]
+  guideSvgViewBox?: string // Default '0 0 100 100'
+}
+
 export type AnyActivityData =
   | ExploreActivityData
   | ListenPickActivityData
   | MatchActivityData
   | TapCountActivityData
   | SortActivityData
+  | TraceActivityData
+

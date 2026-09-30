@@ -460,9 +460,9 @@ export const QUESTION_POOL: SessionQuestion[] = [
 ]
 
 /**
- * Thuật toán sinh 12 câu ngẫu nhiên chống trùng lặp theo hồ sơ bé và nhóm chữ cái đã mở
+ * Thuật toán sinh 15 câu ngẫu nhiên chống trùng lặp theo hồ sơ bé và nhóm chữ cái đã mở
  */
-export async function generate12QuestionSession(profileId: string): Promise<SessionQuestion[]> {
+export async function generate15QuestionSession(profileId: string): Promise<SessionQuestion[]> {
   try {
     // 1. Kiểm tra các nhóm chữ cái đã mở từ Dexie
     const unlockedSetting = await db.settings.get('unlockedAlphabetGroups')
@@ -508,16 +508,16 @@ export async function generate12QuestionSession(profileId: string): Promise<Sess
     // 5. Sắp xếp giảm dần theo điểm ưu tiên
     scoredQuestions.sort((a, b) => b.score - a.score)
 
-    // 6. Lấy 12 câu đa dạng thể loại (cân đối Màu sắc, Hình khối, Số, Chữ cái)
+    // 6. Lấy 15 câu đa dạng thể loại (cân đối Màu sắc, Hình khối, Số, Chữ cái)
     const selected: SessionQuestion[] = []
     const categoriesCount = { color: 0, shape: 0, number: 0, letter: 0 }
 
     for (const item of scoredQuestions) {
-      if (selected.length >= 12) break
+      if (selected.length >= 15) break
 
       const cat = item.question.category
-      // Mỗi thể loại tối đa 3-4 câu để phiên học cân bằng
-      if (categoriesCount[cat] < 4 || selected.length >= 9) {
+      // Mỗi thể loại khoảng 4 câu để phiên học cân bằng
+      if (categoriesCount[cat] < 5 || selected.length >= 11) {
         const shuffledChoices = [...item.question.choices].sort(() => Math.random() - 0.5)
         selected.push({
           ...item.question,
@@ -527,10 +527,10 @@ export async function generate12QuestionSession(profileId: string): Promise<Sess
       }
     }
 
-    // 7. Nếu chưa đủ 12 câu, bổ sung các câu còn lại
-    if (selected.length < 12) {
+    // 7. Nếu chưa đủ 15 câu, bổ sung các câu còn lại
+    if (selected.length < 15) {
       for (const item of scoredQuestions) {
-        if (selected.length >= 12) break
+        if (selected.length >= 15) break
         if (!selected.some((s) => s.id === item.question.id)) {
           const shuffledChoices = [...item.question.choices].sort(() => Math.random() - 0.5)
           selected.push({
@@ -541,10 +541,13 @@ export async function generate12QuestionSession(profileId: string): Promise<Sess
       }
     }
 
-    // Đảo thứ tự 12 câu để tạo sự bất ngờ thú vị cho bé
+    // Đảo thứ tự 15 câu để tạo sự bất ngờ thú vị cho bé
     return selected.sort(() => Math.random() - 0.5)
   } catch (e) {
     console.warn('Lỗi thuật toán chống trùng lặp, dùng fallback ngẫu nhiên:', e)
-    return [...QUESTION_POOL].sort(() => Math.random() - 0.5).slice(0, 12)
+    return [...QUESTION_POOL].sort(() => Math.random() - 0.5).slice(0, 15)
   }
 }
+
+// Giữ lại tên cũ để tương thích ngược
+export const generate12QuestionSession = generate15QuestionSession

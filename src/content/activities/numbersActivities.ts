@@ -147,4 +147,81 @@ export const numbersActivities: AnyActivityData[] = [
       { id: 'choice_more', label: 'Nhiều hơn (5 quả)', audioId: 'so_nhieu_hon', color: '#FF7043', icon: '🍎 🍎 🍎 🍎 🍎', isCorrect: true },
     ],
   },
+
+  // 9. Mẫu TRACE: Bé tập tô nét số 1
+  {
+    id: 'numbers_trace_1',
+    title: 'Tô Nét Số 1',
+    module: 'numbers',
+    template: 'trace',
+    ageMin: 2,
+    learningGoal: 'Bé rèn luyện kỹ năng vận động tinh và viết số 1',
+    promptText: 'Bé dùng tay tô theo nét số 1 nhé!',
+    promptAudio: 'prompt_trace_number',
+    rewardStars: 1,
+    displayChar: '1',
+    charAudio: 'count_1',
+    subLabel: 'Số 1 - Một Quả Táo 🍎',
+    strokes: [
+      {
+        id: 'stroke_num1_1',
+        label: 'Nét xiên lên',
+        guidePathD: 'M 35 38 L 50 22',
+        points: [
+          { x: 35, y: 38 },
+          { x: 50, y: 22 },
+        ],
+      },
+      {
+        id: 'stroke_num1_2',
+        label: 'Nét sổ thẳng',
+        guidePathD: 'M 50 22 L 50 82',
+        points: [
+          { x: 50, y: 22 },
+          { x: 50, y: 52 },
+          { x: 50, y: 82 },
+        ],
+      },
+    ],
+  },
+
+  // 10. Mẫu TRACE: Bé tập tô nét số 3
+  {
+    id: 'numbers_trace_3',
+    title: 'Tô Nét Số 3',
+    module: 'numbers',
+    template: 'trace',
+    ageMin: 3,
+    learningGoal: 'Bé tập vẽ nét cong liên hoàn của số 3',
+    promptText: 'Bé dùng tay tô theo nét số 3 nhé!',
+    promptAudio: 'prompt_trace_number',
+    rewardStars: 1,
+    displayChar: '3',
+    charAudio: 'count_3',
+    subLabel: 'Số 3 - Ba Ngôi Sao ⭐',
+    strokes: [
+      {
+        id: 'stroke_num3_1',
+        label: 'Nét cong trên',
+        guidePathD: 'M 32 28 C 45 18 68 18 68 35 C 68 45 58 50 48 50',
+        points: [
+          { x: 32, y: 28 },
+          { x: 50, y: 20 },
+          { x: 68, y: 32 },
+          { x: 52, y: 50 },
+        ],
+      },
+      {
+        id: 'stroke_num3_2',
+        label: 'Nét cong dưới',
+        guidePathD: 'M 48 50 C 62 50 72 58 72 68 C 72 80 48 84 32 74',
+        points: [
+          { x: 52, y: 50 },
+          { x: 70, y: 60 },
+          { x: 68, y: 76 },
+          { x: 34, y: 74 },
+        ],
+      },
+    ],
+  },
 ]

@@ -14,11 +14,13 @@ import {
   Unlock,
   Moon,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  Music,
 } from 'lucide-react'
 import { db, type Profile } from '@/core/storage/db'
 import { ALPHABET_GROUPS, allActivities } from '@/content/activities'
 import { downloadBackupFile, restoreBackupData } from '@/core/storage/backupService'
+import { audioService } from '@/core/audio/AudioService'
 
 interface ParentDashboardProps {
   profile: Profile
@@ -39,6 +41,7 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
   const [quietHoursEnabled, setQuietHoursEnabled] = useState<boolean>(false)
   const [quietHoursStart, setQuietHoursStart] = useState<string>('21:00')
   const [quietHoursEnd, setQuietHoursEnd] = useState<string>('07:00')
+  const [isBgmEnabled, setIsBgmEnabled] = useState<boolean>(true)
   const [storageInfo, setStorageInfo] = useState<{ isPersisted: boolean; usageMb: string } | null>(null)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -70,7 +73,14 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
       }
     })
 
-    // 4. Kiểm tra lưu trữ bền vững
+    // 4. Cài đặt nhạc nền BGM
+    db.settings.get('bgmEnabled').then((s) => {
+      if (s !== undefined && s.value !== undefined) {
+        setIsBgmEnabled(Boolean(s.value))
+      }
+    })
+
+    // 5. Kiểm tra lưu trữ bền vững
     checkStoragePersistence()
   }, [])
 
@@ -123,6 +133,12 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
       key: 'quietHours',
       value: { enabled, start: quietHoursStart, end: quietHoursEnd },
     })
+  }
+
+  const handleToggleBgm = async (enabled: boolean) => {
+    setIsBgmEnabled(enabled)
+    audioService.setBGMEnabled(enabled)
+    await db.settings.put({ key: 'bgmEnabled', value: enabled })
   }
 
   const handleBackupDownload = async () => {
@@ -481,6 +497,30 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                   </span>
                 </div>
               )}
+            </div>
+
+            {/* Nhạc nền thư giãn nhẹ nhàng (BGM) */}
+            <div className="bg-white p-5 rounded-3xl border-3 border-[#5A3E36]/15 shadow-sm">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="font-extrabold text-base text-[#5A3E36] flex items-center gap-2">
+                  <Music className="w-5 h-5 text-[#2E7D32]" />
+                  Nhạc nền êm dịu (Background Music)
+                </h3>
+                <button
+                  onClick={() => handleToggleBgm(!isBgmEnabled)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-black border-2 transition-all ${
+                    isBgmEnabled
+                      ? 'bg-[#7ED6C1] text-[#1B5E20] border-[#2E7D32]'
+                      : 'bg-gray-100 text-gray-500 border-gray-300'
+                  }`}
+                >
+                  {isBgmEnabled ? 'Đang bật' : 'Đang tắt'}
+                </button>
+              </div>
+
+              <p className="text-xs text-[#8C6D62] leading-relaxed">
+                Nhạc Kalimba mộc nhẹ nhàng giúp bé thư giãn và tập trung. Khi Pikachu nói, nhạc sẽ tự động nhỏ lại để bé nghe rõ từng từ ngữ.
+              </p>
             </div>
           </div>
         )}

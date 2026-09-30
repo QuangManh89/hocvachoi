@@ -5,12 +5,19 @@ type VoiceEndCallback = () => void
 class AudioService {
   private static instance: AudioService
   private currentVoiceHowl: Howl | null = null
+  private bgmHowl: Howl | null = null
+  private isBgmEnabled: boolean = true
+  private normalBgmVolume: number = 0.22
+  private duckedBgmVolume: number = 0.06
   private isUnlocked: boolean = false
   private onVoiceStartListeners: Set<() => void> = new Set()
   private onVoiceEndListeners: Set<() => void> = new Set()
 
   // Bảng ánh xạ clipId sang đường dẫn file audio tĩnh bundled trong src/assets/sounds
   private staticAudioMap: Record<string, string> = {
+    // Nhạc nền thư giãn nhẹ nhàng (BGM)
+    bgm_gentle: new URL('../../assets/sounds/bgm_gentle.wav', import.meta.url).href,
+
     // Nhân vật bạn đồng hành (Pikachu)
     pikachu_greeting: new URL('../../assets/sounds/pikachu_chao.mp3', import.meta.url).href,
     pikachu_sleep: new URL('../../assets/sounds/pikachu_buon_ngu.mp3', import.meta.url).href,
@@ -203,6 +210,8 @@ class AudioService {
     prompt_find_letter_k: new URL('../../assets/sounds/prompt_find_letter_k.mp3', import.meta.url).href,
     prompt_find_letter_q: new URL('../../assets/sounds/prompt_find_letter_q.mp3', import.meta.url).href,
     prompt_match_letter_word: new URL('../../assets/sounds/prompt_match_letter_word.mp3', import.meta.url).href,
+    prompt_trace_letter: new URL('../../assets/sounds/prompt_trace_letter.mp3', import.meta.url).href,
+    prompt_trace_number: new URL('../../assets/sounds/prompt_trace_number.mp3', import.meta.url).href,
 
     cheer_finish: new URL('../../assets/sounds/cheer_finish.mp3', import.meta.url).href,
 
@@ -268,10 +277,65 @@ class AudioService {
 
   private notifyStart() {
     this.onVoiceStartListeners.forEach((fn) => fn())
+    // Tự động giảm âm lượng nhạc nền (Ducking) khi có giọng nói
+    if (this.bgmHowl && this.bgmHowl.playing()) {
+      this.bgmHowl.fade(this.bgmHowl.volume(), this.duckedBgmVolume, 250)
+    }
   }
 
   private notifyEnd() {
     this.onVoiceEndListeners.forEach((fn) => fn())
+    // Khôi phục âm lượng nhạc nền êm đềm khi kết thúc giọng nói
+    if (this.bgmHowl && this.bgmHowl.playing()) {
+      this.bgmHowl.fade(this.bgmHowl.volume(), this.normalBgmVolume, 500)
+    }
+  }
+
+  /**
+   * Phát nhạc nền thư giãn (BGM)
+   */
+  public startBGM(): void {
+    if (!this.isBgmEnabled) return
+    const bgmUrl = this.staticAudioMap.bgm_gentle
+    if (!bgmUrl) return
+
+    if (!this.bgmHowl) {
+      this.bgmHowl = new Howl({
+        src: [bgmUrl],
+        loop: true,
+        html5: true,
+        volume: this.normalBgmVolume,
+      })
+    }
+
+    if (!this.bgmHowl.playing()) {
+      this.bgmHowl.play()
+    }
+  }
+
+  /**
+   * Tạm dừng nhạc nền
+   */
+  public pauseBGM(): void {
+    if (this.bgmHowl && this.bgmHowl.playing()) {
+      this.bgmHowl.pause()
+    }
+  }
+
+  /**
+   * Bật / Tắt nhạc nền theo ý phụ huynh
+   */
+  public setBGMEnabled(enabled: boolean): void {
+    this.isBgmEnabled = enabled
+    if (enabled) {
+      this.startBGM()
+    } else {
+      this.pauseBGM()
+    }
+  }
+
+  public isBGMActive(): boolean {
+    return this.isBgmEnabled && (this.bgmHowl?.playing() ?? false)
   }
 
   /**
@@ -283,6 +347,28 @@ class AudioService {
       this.currentVoiceHowl.unload()
       this.currentVoiceHowl = null
       this.notifyEnd()
+    }
+  }
+
+  /**
+   * Phát âm thanh lấp lánh khi bé vẽ hoặc tô nét chạm trúng điểm mốc (Sparkle Sound FX)
+   */
+  public playSpark(frequency = 659.25): void {
+    if (!Howler.ctx) return
+    try {
+      const ctx = Howler.ctx
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(frequency, ctx.currentTime)
+      gain.gain.setValueAtTime(0.12, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start()
+      osc.stop(ctx.currentTime + 0.22)
+    } catch {
+      // AudioContext có thể chưa sẵn sàng, bỏ qua
     }
   }
 

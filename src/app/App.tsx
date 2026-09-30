@@ -28,10 +28,14 @@ export const App: React.FC = () => {
   }, [])
 
   // Mở khóa âm thanh iOS/iPadOS tại lần chạm đầu tiên
-  const handleStartApp = () => {
+  const handleStartApp = async () => {
     audioService.unlock()
     setIsUnlocked(true)
     audioService.playVoice('pikachu_greeting')
+
+    const bgmSetting = await db.settings.get('bgmEnabled')
+    const isBgmEnabled = bgmSetting ? Boolean(bgmSetting.value) : true
+    audioService.setBGMEnabled(isBgmEnabled)
   }
 
   const childName = profile ? profile.nickname : 'Bé Yêu'
@@ -66,7 +70,7 @@ export const App: React.FC = () => {
 
       {/* 2. Điều hướng chính: */}
       {isMultiSessionActive ? (
-        // A. Chế độ Phiên học tổng hợp 12 câu ngẫu nhiên chống lặp bài
+        // A. Chế độ Phiên học tổng hợp 15 câu ngẫu nhiên chống lặp bài
         <MultiQuestionSession
           profileId={profileId}
           childName={childName}
@@ -81,12 +85,13 @@ export const App: React.FC = () => {
       ) : (
         // C. Màn hình Trang Chủ (HomeScreen)
         <HomeScreen
+          profileId={profileId}
           childName={childName}
           ageBand={ageBand}
           onSelectActivity={(activity) => setCurrentActivity(activity)}
           onOpenParentGate={() => setIsParentGateOpen(true)}
           onOpenProfile={() => setIsProfileModalOpen(true)}
-          onStart12QuestionsSession={() => setIsMultiSessionActive(true)}
+          onStartMultiQuestionSession={() => setIsMultiSessionActive(true)}
         />
       )}
 

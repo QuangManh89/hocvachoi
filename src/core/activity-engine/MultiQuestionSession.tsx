@@ -6,10 +6,11 @@ import { Pikachu, type PikachuState } from '@/components/Pikachu'
 import { audioService } from '@/core/audio/AudioService'
 import { db } from '@/core/storage/db'
 import {
-  generate12QuestionSession,
+  generate15QuestionSession,
   type SessionQuestion,
   type SessionChoice,
 } from './sessionGenerator'
+import { awardRandomSticker, type Sticker } from '@/content/stickers'
 
 interface MultiQuestionSessionProps {
   profileId: string
@@ -29,18 +30,20 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
   const [hasWrongAttempt, setHasWrongAttempt] = useState(false)
   const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null)
   const [isSessionFinished, setIsSessionFinished] = useState(false)
+  const [awardedSticker, setAwardedSticker] = useState<Sticker | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [startTime] = useState(() => Date.now())
 
-  // 1. Sinh 12 câu ngẫu nhiên chống trùng lặp
+  // 1. Sinh 15 câu ngẫu nhiên chống trùng lặp
   const loadNewSession = async () => {
     setIsLoading(true)
     setIsSessionFinished(false)
+    setAwardedSticker(null)
     setCurrentIndex(0)
     setHasWrongAttempt(false)
     setSelectedChoiceId(null)
 
-    const list = await generate12QuestionSession(profileId)
+    const list = await generate15QuestionSession(profileId)
     setQuestions(list)
     setIsLoading(false)
 
@@ -128,28 +131,36 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
     }
   }
 
-  // Khi hoàn thành trọn vẹn 12 câu
+  // Khi hoàn thành trọn vẹn 15 câu
   const handleFinishSession = async () => {
     setIsSessionFinished(true)
     setPikaState('cheer')
-    setSpeechText(`Hoan hô ${childName}! Bé đã hoàn thành 12 câu!`)
+    setSpeechText(`Hoan hô ${childName}! Bé đã hoàn thành 15 câu!`)
     audioService.playVoice('cheer_finish')
 
     confetti({
-      particleCount: 100,
+      particleCount: 120,
       spread: 90,
       origin: { y: 0.6 },
       colors: ['#FED000', '#FF3B30', '#7ED6C1', '#4FB3D9', '#AB47BC'],
     })
 
-    // Ghi nhận phiên học 12 câu vào Dexie
+    // Tặng 1 nhãn dán sticker cho bé
+    try {
+      const sticker = await awardRandomSticker(profileId)
+      setAwardedSticker(sticker)
+    } catch (e) {
+      console.warn('Lỗi trao sticker:', e)
+    }
+
+    // Ghi nhận phiên học 15 câu vào Dexie
     try {
       await db.activityRuns.add({
         profileId,
-        activityId: 'session_12_random',
+        activityId: 'session_15_random',
         startedAt: startTime,
         durationMs: Date.now() - startTime,
-        attempts: 12,
+        attempts: 15,
         hints: 0,
         hesitations: 0,
         completed: true,
@@ -163,14 +174,14 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
     return (
       <div className="w-full h-full flex flex-col items-center justify-center bg-[#FFF8EC] text-[#5A3E36]">
         <Pikachu state="think" size={160} />
-        <p className="mt-4 text-lg font-bold">Pikachu đang chuẩn bị 12 câu hỏi cho bé...</p>
+        <p className="mt-4 text-lg font-bold">Pikachu đang chuẩn bị 15 câu hỏi cho bé...</p>
       </div>
     )
   }
 
   return (
     <div className="relative w-full h-full flex flex-col justify-between p-3 md:p-6 bg-[#FFF8EC] text-[#5A3E36] overflow-hidden select-none">
-      {/* 1. Header Bar: Nút thoát, Thanh tiến độ 12 câu, Nút loa */}
+      {/* 1. Header Bar: Nút thoát, Thanh tiến độ 15 câu, Nút loa */}
       <header className="flex justify-between items-center w-full z-10">
         <button
           onClick={onBack}
@@ -188,7 +199,7 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
             </span>
           </div>
 
-          {/* 12 Chấm tròn tiến độ trực quan */}
+          {/* 15 Chấm tròn tiến độ trực quan */}
           <div className="flex items-center gap-1.5">
             {questions.map((_, idx) => {
               const isPast = idx < currentIndex
@@ -284,42 +295,65 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
         </AnimatePresence>
       </main>
 
-      {/* 4. Màn Chúc Mừng Hoàn Thành Cả 12 Câu (Grand Celebration) */}
+      {/* 4. Màn Chúc Mừng Hoàn Thành Cả 15 Câu (Grand Celebration) */}
       {isSessionFinished && (
-        <div className="fixed inset-0 z-50 bg-[#FFF8EC]/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center">
-          <Pikachu state="cheer" size={240} className="mb-4 drop-shadow-2xl" />
+        <div className="fixed inset-0 z-50 bg-[#FFF8EC]/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center overflow-y-auto">
+          <Pikachu state="cheer" size={200} className="mb-2 drop-shadow-2xl" />
 
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="w-8 h-8 text-[#FED000]" />
-            <h2 className="text-3xl md:text-4xl font-black text-[#5A3E36]">
+          <div className="flex items-center gap-2 mb-1">
+            <Sparkles className="w-7 h-7 text-[#FED000]" />
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-[#5A3E36]">
               Xuất Sắc Quá {childName}!
             </h2>
-            <Sparkles className="w-8 h-8 text-[#FED000]" />
+            <Sparkles className="w-7 h-7 text-[#FED000]" />
           </div>
 
-          <p className="text-lg text-[#8C6D62] mb-3">
-            Bé đã hoàn thành trọn vẹn cả 12 câu hỏi hôm nay!
+          <p className="text-base sm:text-lg text-[#8C6D62] mb-2 font-bold">
+            Bé đã hoàn thành trọn vẹn cả 15 câu hỏi hôm nay!
           </p>
 
-          <div className="flex items-center gap-2 mb-8 bg-[#FFD25E] px-6 py-2.5 rounded-full border-3 border-[#5A3E36] shadow font-black text-xl text-[#5A3E36]">
-            <Star className="w-6 h-6 fill-[#5A3E36]" />
+          <div className="flex items-center gap-2 mb-3 bg-[#FFD25E] px-5 py-2 rounded-full border-3 border-[#5A3E36] shadow font-black text-lg text-[#5A3E36]">
+            <Star className="w-5 h-5 fill-[#5A3E36]" />
             <span>Thưởng 3 ⭐ Sao Vàng</span>
           </div>
 
-          <div className="flex gap-4">
+          {/* Phần thưởng Nhãn Dán Mới (Sticker) */}
+          {awardedSticker && (
+            <div
+              className="flex items-center gap-3 p-3.5 rounded-3xl border-3 border-[#5A3E36] shadow-md my-2 max-w-sm w-full animate-bounce"
+              style={{ backgroundColor: awardedSticker.bgColor }}
+            >
+              <div className="text-4xl sm:text-5xl filter drop-shadow">
+                {awardedSticker.icon}
+              </div>
+              <div className="text-left">
+                <div className="text-[11px] font-black text-[#E65100] uppercase tracking-wide">
+                  🎉 TẶNG BÉ NHÃN DÁN MỚI!
+                </div>
+                <div className="text-base sm:text-lg font-black text-[#5A3E36]">
+                  {awardedSticker.name}
+                </div>
+                <div className="text-xs font-bold text-[#6D4C41]">
+                  {awardedSticker.description}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-3 mt-3">
             <button
               onClick={loadNewSession}
-              className="btn-kid bg-white border-3 border-[#5A3E36] px-6 py-4 rounded-2xl font-bold text-lg flex items-center gap-2 shadow-md active:scale-95"
+              className="btn-kid bg-white border-3 border-[#5A3E36] px-5 py-3.5 rounded-2xl font-bold text-base flex items-center gap-2 shadow-md active:scale-95"
             >
-              <RotateCcw className="w-6 h-6 text-[#5A3E36]" />
-              <span>Phiên mới (12 câu)</span>
+              <RotateCcw className="w-5 h-5 text-[#5A3E36]" />
+              <span>Phiên mới (15 câu)</span>
             </button>
 
             <button
               onClick={onBack}
-              className="btn-kid bg-[#7ED6C1] border-3 border-[#5A3E36] text-[#5A3E36] px-8 py-4 rounded-2xl font-black text-xl flex items-center gap-2 shadow-lg active:scale-95"
+              className="btn-kid bg-[#7ED6C1] border-3 border-[#5A3E36] text-[#5A3E36] px-6 py-3.5 rounded-2xl font-black text-lg flex items-center gap-2 shadow-lg active:scale-95"
             >
-              <Home className="w-6 h-6" />
+              <Home className="w-5 h-5" />
               <span>Về Trang Chủ</span>
             </button>
           </div>

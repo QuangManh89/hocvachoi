@@ -11,6 +11,7 @@ import { ListenPickTemplate } from './templates/ListenPickTemplate'
 import { MatchTemplate } from './templates/MatchTemplate'
 import { TapCountTemplate } from './templates/TapCountTemplate'
 import { SortTemplate } from './templates/SortTemplate'
+import { TraceTemplate } from './templates/TraceTemplate'
 
 interface ActivityContainerProps {
   activity: AnyActivityData
@@ -106,7 +107,11 @@ export const ActivityContainer: React.FC<ActivityContainerProps> = ({
 
         <div className="flex flex-col items-center">
           <span className="text-xs font-bold uppercase tracking-wider text-[#8C6D62]">
-            {activity.module === 'colors_shapes' ? '🌈 Màu sắc & Hình dạng' : '🔢 Con số'}
+            {activity.module === 'colors_shapes'
+              ? '🌈 Màu sắc & Hình dạng'
+              : activity.module === 'alphabet'
+              ? '🔤 Chữ Cái Tiếng Việt'
+              : '🔢 Con Số & Đếm'}
           </span>
           <h2 className="text-xl md:text-2xl font-black text-[#5A3E36]">
             {activity.title}
@@ -177,6 +182,14 @@ export const ActivityContainer: React.FC<ActivityContainerProps> = ({
 
         {activity.template === 'sort' && (
           <SortTemplate
+            activity={activity}
+            onComplete={handleActivityComplete}
+            onFeedback={handleFeedback}
+          />
+        )}
+
+        {activity.template === 'trace' && (
+          <TraceTemplate
             activity={activity}
             onComplete={handleActivityComplete}
             onFeedback={handleFeedback}
