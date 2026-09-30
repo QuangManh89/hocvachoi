@@ -18,8 +18,30 @@ export const TapCountTemplate: React.FC<TapCountTemplateProps> = ({
   const [countedIndices, setCountedIndices] = useState<number[]>([])
 
   const total = activity.targetCount || 5
-  const countAudios = ['count_1', 'count_2', 'count_3', 'count_4', 'number_5']
-  const countLabels = ['Một!', 'Hai!', 'Ba!', 'Bốn!', 'Năm!']
+  const countAudios = [
+    'count_1',
+    'count_2',
+    'count_3',
+    'count_4',
+    'count_5',
+    'count_6',
+    'count_7',
+    'count_8',
+    'count_9',
+    'count_10',
+  ]
+  const countLabels = [
+    'Một!',
+    'Hai!',
+    'Ba!',
+    'Bốn!',
+    'Năm!',
+    'Sáu!',
+    'Bảy!',
+    'Tám!',
+    'Chín!',
+    'Mười!',
+  ]
 
   const handleTapApple = (index: number) => {
     if (countedIndices.includes(index)) return
@@ -29,7 +51,7 @@ export const TapCountTemplate: React.FC<TapCountTemplateProps> = ({
     setCountedCount(nextCount)
     setCountedIndices(nextIndices)
 
-    const audioId = countAudios[nextCount - 1] || 'number_5'
+    const audioId = countAudios[nextCount - 1] || 'count_10'
     const label = countLabels[nextCount - 1] || `${nextCount}`
 
     audioService.playVoice(audioId)

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { Settings, Star, ChevronRight, Edit3, Play } from 'lucide-react'
+import { Settings, Star, ChevronRight, Edit3, Play, Lock } from 'lucide-react'
 import { Pikachu, type PikachuState } from '@/components/Pikachu'
-import { phase1aActivities } from '@/content/activities/phase1aActivities'
+import { allActivities } from '@/content/activities'
 import type { AnyActivityData } from '@/core/activity-engine/types'
 import { db } from '@/core/storage/db'
 import { audioService } from '@/core/audio/AudioService'
@@ -26,16 +26,23 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 }) => {
   const [pikaState, setPikaState] = useState<PikachuState>('wave')
   const [totalStars, setTotalStars] = useState(0)
-  const [selectedModule, setSelectedModule] = useState<'colors_shapes' | 'numbers'>('colors_shapes')
+  const [selectedModule, setSelectedModule] = useState<'colors_shapes' | 'numbers' | 'alphabet'>('colors_shapes')
+  const [unlockedAlphabetGroups, setUnlockedAlphabetGroups] = useState<number[]>([1])
+  const [lockedNotice, setLockedNotice] = useState<string | null>(null)
 
   useEffect(() => {
-    // Đếm tổng số sao bé đã đạt được từ Dexie
+    // 1. Đếm tổng số sao bé đã đạt được từ Dexie
     db.activityRuns
       .filter((r) => r.completed)
       .count()
       .then((count) => {
         setTotalStars(count)
       })
+
+    // 2. Lấy danh sách nhóm chữ cái đã mở
+    db.settings.get('unlockedAlphabetGroups').then((s) => {
+      if (s?.value) setUnlockedAlphabetGroups(s.value)
+    })
 
     const cleanup = audioService.onVoiceStateChange(
       () => setPikaState('talk'),
@@ -50,7 +57,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   }
 
   // Lọc hoạt động theo module
-  const currentActivities = phase1aActivities.filter((a) => a.module === selectedModule)
+  const currentActivities = allActivities.filter((a) => a.module === selectedModule)
+
+  const handleActivityClick = (act: AnyActivityData) => {
+    // Kiểm tra nếu là bài chữ cái thuộc nhóm bị khóa
+    if (act.module === 'alphabet') {
+      const match = act.id.match(/alphabet_g(\d)_/)
+      if (match) {
+        const groupNum = parseInt(match[1], 10)
+        if (!unlockedAlphabetGroups.includes(groupNum)) {
+          audioService.playVoice('cat_encourage')
+          setLockedNotice(`Nhóm ${groupNum} đang khóa. Ba mẹ mở trong Khu Vực Phụ Huynh nhé!`)
+          setTimeout(() => setLockedNotice(null), 3500)
+          return
+        }
+      }
+    }
+
+    onSelectActivity(act)
+  }
 
   return (
     <div className="relative w-full h-full flex flex-col justify-between p-3 md:p-6 bg-[#FFF8EC] text-[#5A3E36] overflow-y-auto select-none">
@@ -91,10 +116,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </button>
       </header>
 
+      {/* Thông báo bài bị khóa nếu chạm vào */}
+      {lockedNotice && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-[#FED000] text-[#5A3E36] border-3 border-[#5A3E36] px-5 py-2.5 rounded-2xl font-black text-xs sm:text-sm shadow-xl animate-bounce text-center">
+          {lockedNotice}
+        </div>
+      )}
+
       {/* 2. Pikachu Đồng Hành */}
       <div className="flex flex-col items-center justify-center my-1 z-10">
         <div className="relative cursor-pointer" onClick={handlePikachuClick}>
-          <Pikachu state={pikaState} size={175} />
+          <Pikachu state={pikaState} size={165} />
           {/* Bong bóng lời chào */}
           <div className="absolute -top-2 -right-10 bg-white border-2 border-[#5A3E36] px-3 py-1.5 rounded-full text-xs font-bold text-[#5A3E36] shadow-md animate-bounce">
             Chào {childName}! ⚡
@@ -103,29 +135,29 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       </div>
 
       {/* 3. HERO BANNER: PHIÊN HỌC TỔNG HỢP 12 CÂU NGẪU NHIÊN CHỐNG LẶP */}
-      <div className="w-full max-w-xl mx-auto my-2 z-10">
+      <div className="w-full max-w-xl mx-auto my-1.5 z-10">
         <button
           onClick={onStart12QuestionsSession}
-          className="w-full btn-kid min-h-[76px] bg-gradient-to-r from-[#FED000] via-[#FFE055] to-[#FED000] border-3 border-[#5A3E36] rounded-3xl p-3.5 shadow-lg flex items-center justify-between active:scale-98 transition-transform"
+          className="w-full btn-kid min-h-[72px] bg-gradient-to-r from-[#FED000] via-[#FFE055] to-[#FED000] border-3 border-[#5A3E36] rounded-3xl p-3 shadow-lg flex items-center justify-between active:scale-98 transition-transform"
         >
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm border-2 border-[#5A3E36]/20">
               ⚡
             </div>
             <div className="text-left">
-              <div className="font-black text-lg text-[#5A3E36] flex items-center gap-2 leading-tight">
+              <div className="font-black text-base sm:text-lg text-[#5A3E36] flex items-center gap-2 leading-tight">
                 <span>Phiên Học Của {childName}</span>
                 <span className="bg-[#FF3B30] text-white text-[10px] px-2 py-0.5 rounded-full font-black">
                   12 CÂU
                 </span>
               </div>
-              <div className="text-xs font-bold text-[#6D4C41] mt-0.5">
+              <div className="text-[11px] sm:text-xs font-bold text-[#6D4C41] mt-0.5">
                 Tổng hợp ngẫu nhiên • Tự động chống lặp bài học
               </div>
             </div>
           </div>
 
-          <div className="bg-[#5A3E36] text-white font-black text-sm px-4 py-2.5 rounded-2xl flex items-center gap-1.5 shadow">
+          <div className="bg-[#5A3E36] text-white font-black text-xs sm:text-sm px-3.5 py-2 rounded-2xl flex items-center gap-1.5 shadow">
             <Play className="w-4 h-4 fill-current" />
             <span>Chơi ngay</span>
           </div>
@@ -133,31 +165,42 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       </div>
 
       {/* 4. Tab Chọn Module Từng Bài Học Lẻ */}
-      <div className="flex justify-between items-center w-full max-w-xl mx-auto mt-2 mb-1 px-1 z-10">
+      <div className="flex flex-col sm:flex-row justify-between items-center w-full max-w-xl mx-auto mt-2 mb-1.5 px-1 z-10 gap-1.5">
         <span className="text-xs font-black uppercase tracking-wider text-[#8C6D62]">
-          Hoặc chọn từng bài học:
+          Chọn bài học lẻ ({currentActivities.length} bài):
         </span>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5 flex-wrap justify-center">
           <button
             onClick={() => setSelectedModule('colors_shapes')}
-            className={`px-3 py-1 rounded-xl text-xs font-black border-2 transition-all ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-black border-2 transition-all ${
               selectedModule === 'colors_shapes'
                 ? 'bg-[#7ED6C1] border-[#5A3E36] text-[#5A3E36] shadow-sm'
                 : 'bg-white/80 border-[#5A3E36]/20 text-[#8C6D62]'
             }`}
           >
-            🌈 Màu & Hình
+            🌈 Màu & Hình (7)
           </button>
 
           <button
             onClick={() => setSelectedModule('numbers')}
-            className={`px-3 py-1 rounded-xl text-xs font-black border-2 transition-all ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-black border-2 transition-all ${
               selectedModule === 'numbers'
                 ? 'bg-[#FFD25E] border-[#5A3E36] text-[#5A3E36] shadow-sm'
                 : 'bg-white/80 border-[#5A3E36]/20 text-[#8C6D62]'
             }`}
           >
-            🔢 Con Số
+            🔢 Con Số (8)
+          </button>
+
+          <button
+            onClick={() => setSelectedModule('alphabet')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-black border-2 transition-all ${
+              selectedModule === 'alphabet'
+                ? 'bg-[#FF8A65] border-[#5A3E36] text-white shadow-sm'
+                : 'bg-white/80 border-[#5A3E36]/20 text-[#8C6D62]'
+            }`}
+          >
+            🔤 Chữ Cái (15)
           </button>
         </div>
       </div>
@@ -166,32 +209,69 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <main className="w-full max-w-xl mx-auto z-10 pb-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {currentActivities.map((act) => {
+            // Kiểm tra trạng thái khóa nhóm chữ cái
+            let isLocked = false
+            let groupBadge = ''
+            if (act.module === 'alphabet') {
+              const match = act.id.match(/alphabet_g(\d)_/)
+              if (match) {
+                const groupNum = parseInt(match[1], 10)
+                groupBadge = `Nhóm ${groupNum}`
+                if (!unlockedAlphabetGroups.includes(groupNum)) {
+                  isLocked = true
+                }
+              }
+            }
+
             return (
               <motion.button
                 key={act.id}
-                onClick={() => onSelectActivity(act)}
-                whileHover={{ scale: 1.02 }}
+                onClick={() => handleActivityClick(act)}
+                whileHover={{ scale: isLocked ? 1 : 1.02 }}
                 whileTap={{ scale: 0.95 }}
-                className="btn-kid h-20 bg-white rounded-3xl p-3 border-3 border-[#5A3E36] shadow-sm flex items-center justify-between transition-transform text-left"
+                className={`btn-kid min-h-[76px] rounded-3xl p-3 border-3 shadow-sm flex items-center justify-between transition-transform text-left ${
+                  isLocked
+                    ? 'bg-[#F3EDE2]/80 border-[#5A3E36]/25 opacity-75'
+                    : 'bg-white border-[#5A3E36]'
+                }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-[#FFF8EC] border-2 border-[#5A3E36]/20 flex items-center justify-center text-2xl">
-                    {act.template === 'explore'
-                      ? '🎨'
-                      : act.template === 'listen_pick'
-                      ? '👂'
-                      : act.template === 'match'
-                      ? '🧩'
-                      : act.template === 'tap_count'
-                      ? '🍎'
-                      : '🧺'}
+                  <div
+                    className={`w-12 h-12 rounded-2xl border-2 flex items-center justify-center text-2xl ${
+                      isLocked
+                        ? 'bg-gray-100 border-gray-300'
+                        : 'bg-[#FFF8EC] border-[#5A3E36]/20'
+                    }`}
+                  >
+                    {isLocked ? (
+                      <Lock className="w-6 h-6 text-gray-400" />
+                    ) : act.template === 'explore' ? (
+                      '🎨'
+                    ) : act.template === 'listen_pick' ? (
+                      '👂'
+                    ) : act.template === 'match' ? (
+                      '🧩'
+                    ) : act.template === 'tap_count' ? (
+                      '🍎'
+                    ) : (
+                      '🧺'
+                    )}
                   </div>
                   <div>
-                    <h3 className="font-extrabold text-sm text-[#5A3E36] leading-snug">
-                      {act.title}
-                    </h3>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-extrabold text-sm text-[#5A3E36] leading-snug">
+                        {act.title}
+                      </h3>
+                      {groupBadge && (
+                        <span className="text-[9px] font-black bg-[#5A3E36]/10 px-1.5 py-0.5 rounded-full text-[#5A3E36]">
+                          {groupBadge}
+                        </span>
+                      )}
+                    </div>
                     <span className="text-[11px] font-bold text-[#8C6D62]">
-                      {act.template === 'explore'
+                      {isLocked
+                        ? 'Chưa mở khóa'
+                        : act.template === 'explore'
                         ? 'Khám phá'
                         : act.template === 'listen_pick'
                         ? 'Nghe & Chọn'
@@ -204,8 +284,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   </div>
                 </div>
 
-                <div className="w-7 h-7 rounded-full bg-[#7ED6C1] flex items-center justify-center">
-                  <ChevronRight className="w-4 h-4 text-[#5A3E36]" />
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                    isLocked ? 'bg-gray-200 text-gray-400' : 'bg-[#7ED6C1] text-[#5A3E36]'
+                  }`}
+                >
+                  {isLocked ? <Lock className="w-3.5 h-3.5" /> : <ChevronRight className="w-4 h-4" />}
                 </div>
               </motion.button>
             )

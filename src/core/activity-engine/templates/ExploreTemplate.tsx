@@ -34,37 +34,75 @@ export const ExploreTemplate: React.FC<ExploreTemplateProps> = ({
     }
   }
 
+  const colsClass =
+    activity.items.length <= 4
+      ? 'grid-cols-2'
+      : activity.items.length <= 6
+      ? 'grid-cols-2 sm:grid-cols-3'
+      : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4'
+
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full max-w-xl mx-auto p-2">
+    <div className="flex-1 flex flex-col items-center justify-center w-full max-w-2xl mx-auto p-2 overflow-y-auto">
       {/* Hướng dẫn nhẹ */}
-      <div className="text-center mb-6">
-        <span className="bg-white/80 border-2 border-[#5A3E36]/10 px-4 py-1.5 rounded-full text-sm font-bold text-[#8C6D62]">
-          Đã khám phá {exploredIds.size}/{activity.items.length} màu
+      <div className="text-center mb-4">
+        <span className="bg-white/90 border-2 border-[#5A3E36]/15 px-5 py-2 rounded-full text-sm font-extrabold text-[#5A3E36] shadow-sm">
+          Đã khám phá: {exploredIds.size} / {activity.items.length}
         </span>
       </div>
 
       {/* Lưới các ô khám phá lớn (≥ 80px) */}
-      <div className="grid grid-cols-2 gap-4 w-full">
+      <div className={`grid ${colsClass} gap-3 sm:gap-4 w-full p-1`}>
         {activity.items.map((item) => {
           const isExplored = exploredIds.has(item.id)
+          const bgColor = item.color || '#FFFFFF'
+          const isLight =
+            bgColor === '#FFFFFF' ||
+            bgColor === '#FED000' ||
+            bgColor === '#FFF8EC' ||
+            bgColor === '#FFF1D6'
+
           return (
             <motion.button
               key={item.id}
               onClick={() => handleTapItem(item)}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.94 }}
-              className="relative btn-kid h-36 flex flex-col items-center justify-center p-4 rounded-3xl border-4 border-[#5A3E36] shadow-md transition-shadow active:shadow-inner"
-              style={{ backgroundColor: item.color }}
+              animate={isExplored ? { scale: [1, 1.04, 1] } : {}}
+              className="relative btn-kid min-h-[110px] sm:min-h-[128px] flex flex-col items-center justify-center p-3 rounded-3xl border-4 border-[#5A3E36] shadow-md transition-shadow active:shadow-inner"
+              style={{ backgroundColor: bgColor }}
             >
-              <span className="text-4xl mb-2 drop-shadow-sm">{item.icon}</span>
-              <span className="text-xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+              {item.displayChar ? (
+                <span className="text-4xl sm:text-5xl font-black text-[#5A3E36] mb-1">
+                  {item.displayChar}
+                </span>
+              ) : item.icon ? (
+                <span className="text-3xl sm:text-4xl mb-1 drop-shadow-sm">{item.icon}</span>
+              ) : null}
+
+              <span
+                className={`text-base sm:text-lg font-black leading-tight text-center ${
+                  isLight
+                    ? 'text-[#5A3E36]'
+                    : 'text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]'
+                }`}
+              >
                 {item.label}
               </span>
 
+              {item.subLabel && (
+                <span
+                  className={`text-xs font-bold mt-0.5 ${
+                    isLight ? 'text-[#8C6D62]' : 'text-white/90'
+                  }`}
+                >
+                  {item.subLabel}
+                </span>
+              )}
+
               {/* Ngôi sao nhỏ đánh dấu đã khám phá */}
               {isExplored && (
-                <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow">
-                  <span className="text-sm">⭐</span>
+                <div className="absolute top-2 right-2 bg-white rounded-full p-1 shadow border border-[#5A3E36]/20">
+                  <span className="text-xs">⭐</span>
                 </div>
               )}
             </motion.button>

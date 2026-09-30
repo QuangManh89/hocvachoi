@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { Sparkles, Zap, Settings, CheckCircle, ShieldCheck, User } from 'lucide-react'
+import { Sparkles, Zap } from 'lucide-react'
 import { Pikachu } from '@/components/Pikachu'
 import { audioService } from '@/core/audio/AudioService'
 import { ParentGate } from '@/core/gate/ParentGate'
 import { ProfileModal } from '@/components/ProfileModal'
+import { ParentDashboard } from '@/features/parents/ParentDashboard'
 import { HomeScreen } from '@/features/home/HomeScreen'
 import { ActivityContainer } from '@/core/activity-engine/ActivityContainer'
 import { MultiQuestionSession } from '@/core/activity-engine/MultiQuestionSession'
@@ -106,64 +107,13 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* 5. Khu Vực Phụ Huynh */}
-      {parentAreaActive && (
-        <div className="fixed inset-0 z-50 bg-[#FFF8EC] p-6 overflow-y-auto flex flex-col justify-between select-none">
-          <div className="max-w-2xl mx-auto w-full">
-            <div className="flex justify-between items-center mb-6 border-b-2 border-[#5A3E36]/10 pb-4">
-              <h2 className="text-2xl font-black flex items-center gap-2">
-                <Settings className="w-7 h-7 text-[#7ED6C1]" />
-                Khu Vực Phụ Huynh
-              </h2>
-              <button
-                onClick={() => setParentAreaActive(false)}
-                className="px-5 py-2.5 bg-[#5A3E36] text-white rounded-2xl font-bold active:scale-95"
-              >
-                Đóng
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {/* Thẻ chỉnh sửa hồ sơ bé */}
-              <div className="bg-white p-5 rounded-3xl border-3 border-[#5A3E36]/15 shadow-sm flex justify-between items-center">
-                <div>
-                  <h3 className="font-extrabold text-base flex items-center gap-1.5 text-[#5A3E36]">
-                    <User className="w-5 h-5 text-[#FF8A65]" />
-                    Hồ sơ đang chọn: {childName}
-                  </h3>
-                  <p className="text-xs text-[#8C6D62] mt-0.5">Nhóm tuổi: {ageBand} tuổi</p>
-                </div>
-                <button
-                  onClick={() => setIsProfileModalOpen(true)}
-                  className="px-4 py-2 bg-[#FED000] text-[#5A3E36] rounded-xl font-bold text-sm border-2 border-[#5A3E36] active:scale-95 shadow-sm"
-                >
-                  Đổi tên bé
-                </button>
-              </div>
-
-              {/* Thông tin tính năng */}
-              <div className="bg-white p-5 rounded-3xl border-3 border-[#5A3E36]/15 shadow-sm">
-                <h3 className="font-bold text-lg mb-2 flex items-center gap-2 text-[#5A3E36]">
-                  <CheckCircle className="w-5 h-5 text-[#7ED6C1]" />
-                  Tính năng Chống Lặp Bài Học (Anti-Duplication)
-                </h3>
-                <p className="text-sm text-[#8C6D62] leading-relaxed">
-                  Mỗi khi bé hoàn thành câu hỏi, hệ thống ghi nhận lịch sử vào IndexedDB (`itemMastery`). Khi bắt đầu phiên 12 câu, thuật toán sẽ tự động ưu tiên các câu bé chưa học hoặc câu đã học lâu nhất để ôn luyện, không bao giờ trùng lặp liên tục.
-                </p>
-              </div>
-
-              <div className="bg-[#FFF1D6] p-5 rounded-3xl border-3 border-[#F6B36B] text-sm">
-                <h4 className="font-bold mb-1 text-[#5A3E36] flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-[#E65100]" />
-                  Nguyên tắc sư phạm bảo vệ bé:
-                </h4>
-                <p className="text-[#6B514A] leading-relaxed">
-                  Ứng dụng tuyệt đối không có chế độ "thua", không trừ điểm. Khi bé chọn chưa đúng, Pikachu sẽ động viên nhẹ nhàng và đáp án đúng sẽ sáng lên để hướng dẫn bé tự nhiên.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* 5. Khu Vực Phụ Huynh Dashboard */}
+      {parentAreaActive && profile && (
+        <ParentDashboard
+          profile={profile}
+          onClose={() => setParentAreaActive(false)}
+          onProfileChange={(updated) => setProfile(updated)}
+        />
       )}
     </div>
   )

@@ -89,12 +89,12 @@ export const SortTemplate: React.FC<SortTemplateProps> = ({
         </div>
       </div>
 
-      {/* Khu vực giỏ đựng màu sắc ở dưới */}
+      {/* Khu vực giỏ đựng ở dưới */}
       <div className="w-full">
         <div className="text-center font-bold text-sm text-[#8C6D62] mb-3">
-          2. Bỏ vào đúng giỏ cùng màu:
+          2. Bỏ vào đúng nhóm tương ứng:
         </div>
-        <div className="grid grid-cols-3 gap-3 w-full">
+        <div className={`grid ${activity.buckets.length === 2 ? 'grid-cols-2' : 'grid-cols-3'} gap-3 w-full`}>
           {activity.buckets.map((bucket) => {
             return (
               <motion.button
@@ -105,8 +105,8 @@ export const SortTemplate: React.FC<SortTemplateProps> = ({
                 className="btn-kid h-32 rounded-3xl flex flex-col items-center justify-center p-3 border-4 border-[#5A3E36] shadow-md transition-transform"
                 style={{ backgroundColor: bucket.color }}
               >
-                <span className="text-3xl mb-1">🧺</span>
-                <span className="text-sm font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
+                <span className="text-4xl mb-1">{bucket.icon || '🧺'}</span>
+                <span className="text-base font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)] text-center">
                   {bucket.label}
                 </span>
               </motion.button>
