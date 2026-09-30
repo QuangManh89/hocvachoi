@@ -1,20 +1,24 @@
 import { colorsShapesActivities } from './colorsShapesActivities'
 import { numbersActivities } from './numbersActivities'
 import { alphabetActivities } from './alphabetActivities'
+import { tonesActivities } from './tonesActivities'
 import type { AnyActivityData } from '@/core/activity-engine/types'
 
-// Tổng hợp 30 hoạt động MVP hoàn chỉnh
+// Tổng hợp hoạt động của các module
 export const allActivities: AnyActivityData[] = [
-  ...colorsShapesActivities, // 7 hoạt động Màu & Hình
-  ...numbersActivities,      // 8 hoạt động Con Số
-  ...alphabetActivities,     // 15 hoạt động Bảng Chữ Cái (5 nhóm x 3 bài)
+  ...colorsShapesActivities, // Màu & Hình
+  ...numbersActivities,      // Con Số & Đếm
+  ...alphabetActivities,     // Bảng Chữ Cái (5 nhóm)
+  ...tonesActivities,        // 5 Dấu Thanh Tiếng Việt
 ]
 
 export const getActivityById = (id: string): AnyActivityData | undefined => {
   return allActivities.find((a) => a.id === id)
 }
 
-export const getActivitiesByModule = (module: 'colors_shapes' | 'numbers' | 'alphabet'): AnyActivityData[] => {
+export const getActivitiesByModule = (
+  module: 'colors_shapes' | 'numbers' | 'alphabet' | 'tones'
+): AnyActivityData[] => {
   return allActivities.filter((a) => a.module === module)
 }
 

@@ -213,6 +213,26 @@ class AudioService {
     prompt_trace_letter: new URL('../../assets/sounds/prompt_trace_letter.mp3', import.meta.url).href,
     prompt_trace_number: new URL('../../assets/sounds/prompt_trace_number.mp3', import.meta.url).href,
 
+    // Dấu thanh tiếng Việt
+    dau_sac: new URL('../../assets/sounds/dau_sac.mp3', import.meta.url).href,
+    dau_huyen: new URL('../../assets/sounds/dau_huyen.mp3', import.meta.url).href,
+    dau_hoi: new URL('../../assets/sounds/dau_hoi.mp3', import.meta.url).href,
+    dau_nga: new URL('../../assets/sounds/dau_nga.mp3', import.meta.url).href,
+    dau_nang: new URL('../../assets/sounds/dau_nang.mp3', import.meta.url).href,
+    tu_co: new URL('../../assets/sounds/tu_co.mp3', import.meta.url).href,
+    tu_ho: new URL('../../assets/sounds/tu_ho.mp3', import.meta.url).href,
+    tu_mu: new URL('../../assets/sounds/tu_mu.mp3', import.meta.url).href,
+    tu_vet: new URL('../../assets/sounds/tu_vet.mp3', import.meta.url).href,
+
+    prompt_explore_tones: new URL('../../assets/sounds/prompt_explore_tones.mp3', import.meta.url).href,
+    prompt_find_dau_sac: new URL('../../assets/sounds/prompt_find_dau_sac.mp3', import.meta.url).href,
+    prompt_find_dau_huyen: new URL('../../assets/sounds/prompt_find_dau_huyen.mp3', import.meta.url).href,
+    prompt_find_dau_hoi: new URL('../../assets/sounds/prompt_find_dau_hoi.mp3', import.meta.url).href,
+    prompt_find_dau_nga: new URL('../../assets/sounds/prompt_find_dau_nga.mp3', import.meta.url).href,
+    prompt_find_dau_nang: new URL('../../assets/sounds/prompt_find_dau_nang.mp3', import.meta.url).href,
+    prompt_match_tones: new URL('../../assets/sounds/prompt_match_tones.mp3', import.meta.url).href,
+    prompt_trace_tone: new URL('../../assets/sounds/prompt_trace_tone.mp3', import.meta.url).href,
+
     cheer_finish: new URL('../../assets/sounds/cheer_finish.mp3', import.meta.url).href,
 
   }

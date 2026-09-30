@@ -16,6 +16,7 @@ import {
   Sparkles,
   AlertCircle,
   Music,
+  Printer,
 } from 'lucide-react'
 import { db, type Profile } from '@/core/storage/db'
 import { ALPHABET_GROUPS, allActivities } from '@/content/activities'
@@ -33,7 +34,7 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
   onClose,
   onProfileChange,
 }) => {
-  const [activeTab, setActiveTab] = useState<'progress' | 'alphabet' | 'limits' | 'backup'>('progress')
+  const [activeTab, setActiveTab] = useState<'progress' | 'alphabet' | 'limits' | 'backup' | 'play_cards'>('progress')
   const [totalStars, setTotalStars] = useState(0)
   const [completedActivities, setCompletedActivities] = useState<string[]>([])
   const [unlockedGroups, setUnlockedGroups] = useState<number[]>([1])
@@ -263,6 +264,18 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
         >
           <HardDrive className="w-4 h-4" />
           <span>Sao Lưu & Bộ Nhớ</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('play_cards')}
+          className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-1.5 transition-all ${
+            activeTab === 'play_cards'
+              ? 'bg-[#FED000] text-[#5A3E36] shadow-sm border-2 border-[#5A3E36]'
+              : 'text-[#8C6D62] hover:bg-white'
+          }`}
+        >
+          <Printer className="w-4 h-4" />
+          <span>Thẻ Chơi Cùng Con (In 🖨️)</span>
         </button>
       </div>
 
@@ -589,6 +602,110 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
                   </button>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- TAB 5: THẺ CHƠI CÙNG CON & IN ẤN --- */}
+        {activeTab === 'play_cards' && (
+          <div className="space-y-4">
+            <div className="bg-white p-5 rounded-3xl border-3 border-[#5A3E36] shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div>
+                <h3 className="font-black text-lg text-[#5A3E36] flex items-center gap-2">
+                  <span>🖨️ Thẻ Hoạt Động Chơi Cùng Con</span>
+                </h3>
+                <p className="text-xs text-[#8C6D62] mt-1">
+                  Trò chơi tương tác thực tế giữa ba mẹ và bé gắn liền với bài học. Bấm nút In để in ra giấy A4.
+                </p>
+              </div>
+              <button
+                onClick={() => window.print()}
+                className="btn-kid bg-[#FED000] text-[#5A3E36] font-black text-sm px-5 py-2.5 rounded-2xl border-2 border-[#5A3E36] shadow-sm flex items-center gap-2 active:scale-95"
+              >
+                <Printer className="w-4 h-4" />
+                <span>In Ra Giấy (A4)</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {[
+                {
+                  id: 'card_1',
+                  icon: '🍎',
+                  title: 'Đếm Trái Cây & Bánh Quy',
+                  tag: 'Môn: Số Lượng (1-5)',
+                  goal: 'Phát triển cảm nhận lượng qua giác quan nếm và cầm nắm.',
+                  howTo: 'Đặt từ 1 đến 5 quả quýt hoặc chiếc bánh quy lên đĩa. Mẹ cùng bé chạm ngón tay vào từng cái rồi đếm to: "Một, Hai, Ba!". Khi đếm xong, bé được thưởng thức món ăn!',
+                  color: '#FFEBEE',
+                },
+                {
+                  id: 'card_2',
+                  icon: '🌈',
+                  title: 'Đi Tìm Sắc Màu Quanh Nhà',
+                  tag: 'Môn: Màu Sắc Cơ Bản',
+                  goal: 'Nhận biết màu sắc trong môi trường sống thực tế.',
+                  howTo: 'Ba mẹ hô to: "Pikachu bảo tìm một món đồ màu ĐỎ trong phòng khách!". Bé sẽ chạy quanh phòng, tìm và chỉ vào món đồ màu đỏ. Tiếp tục với màu Vàng, Xanh...',
+                  color: '#FFFDE7',
+                },
+                {
+                  id: 'card_3',
+                  icon: '🌾',
+                  title: 'Vẽ Nét Chữ Trên Đĩa Bột',
+                  tag: 'Môn: Tô Nét & Chữ Cái',
+                  goal: 'Luyện vận động tinh ngón tay và nhớ hình dáng chữ.',
+                  howTo: 'Đổ một lớp mỏng bột mì hoặc bột gạo lên một chiếc đĩa phẳng. Ba mẹ viết mẫu chữ A hoặc số 1, sau đó bé dùng ngón trỏ vẽ lại. Lắc nhẹ đĩa để xóa và vẽ chữ khác!',
+                  color: '#E8F5E9',
+                },
+                {
+                  id: 'card_4',
+                  icon: '🏠',
+                  title: 'Xây Nhà Bằng Khối Hình',
+                  tag: 'Môn: Hình Dạng Cơ Bản',
+                  goal: 'Hiểu sự phối hợp giữa các hình học trong cuộc sống.',
+                  howTo: 'Dùng giấy bìa cắt thành các hình tam giác, vuông, tròn. Mẹ và bé cùng ghép: Hình vuông làm thân nhà, tam giác làm mái ngói, hình tròn làm ông mặt trời chiếu sáng.',
+                  color: '#E3F2FD',
+                },
+                {
+                  id: 'card_5',
+                  icon: '🎵',
+                  title: 'Đố Vui 5 Dấu Thanh',
+                  tag: 'Môn: Dấu Thanh Tiếng Việt',
+                  goal: 'Phân biệt cao độ giọng nói và ngữ điệu tiếng Việt.',
+                  howTo: 'Ba mẹ đố vui: "Con gì bơi dưới nước có dấu sắc? -> Con Cá!", "Con gì ăn cỏ kêu ù bò có dấu huyền? -> Con Bò!", "Con gì chúa sơn lâm có dấu hỏi? -> Con Hổ!".',
+                  color: '#F3E5F5',
+                },
+                {
+                  id: 'card_6',
+                  icon: '🖐️',
+                  title: 'Soi Bóng Bàn Tay Trên Tường',
+                  tag: 'Môn: Ghép Đôi & Hình Bóng',
+                  goal: 'Rèn luyện khả năng quan sát không gian và trí tưởng tượng.',
+                  howTo: 'Tắt bớt đèn, dùng đèn pin chiếu lên tường. Ba mẹ tạo dáng bàn tay thành con chim đang bay, con thỏ vểnh tai hoặc con chó sủa để bé đoán tên con vật.',
+                  color: '#FFF3E0',
+                },
+              ].map((card) => (
+                <div
+                  key={card.id}
+                  className="bg-white p-4 rounded-3xl border-3 border-[#5A3E36] shadow-sm flex flex-col justify-between"
+                  style={{ borderLeftWidth: '8px', borderLeftColor: '#FED000' }}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-2xl">{card.icon}</span>
+                      <span className="text-[10px] font-black bg-[#5A3E36]/10 px-2 py-0.5 rounded-full text-[#5A3E36]">
+                        {card.tag}
+                      </span>
+                    </div>
+                    <h4 className="font-black text-base text-[#5A3E36] mb-1">{card.title}</h4>
+                    <p className="text-[11px] font-bold text-[#8C6D62] mb-2 italic">
+                      🎯 Mục tiêu: {card.goal}
+                    </p>
+                    <div className="bg-[#FFF8EC] p-2.5 rounded-xl border border-[#5A3E36]/15 text-xs text-[#5A3E36] leading-relaxed">
+                      <strong>👉 Cách chơi:</strong> {card.howTo}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

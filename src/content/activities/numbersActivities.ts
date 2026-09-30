@@ -224,4 +224,124 @@ export const numbersActivities: AnyActivityData[] = [
       },
     ],
   },
+
+  // 11. Mẫu TRACE: Bé tập tô nét số 2
+  {
+    id: 'numbers_trace_2',
+    title: 'Tô Nét Số 2',
+    module: 'numbers',
+    template: 'trace',
+    ageMin: 2,
+    learningGoal: 'Bé tập vẽ nét lượn cong và nét gạch chân số 2',
+    promptText: 'Bé dùng tay tô theo nét số 2 nhé!',
+    promptAudio: 'prompt_trace_number',
+    rewardStars: 1,
+    displayChar: '2',
+    charAudio: 'count_2',
+    subLabel: 'Số 2 - Hai Chú Vịt 🦆',
+    strokes: [
+      {
+        id: 'stroke_num2_1',
+        label: 'Nét cong lượn xiên',
+        guidePathD: 'M 30 32 C 32 18 68 18 68 38 C 68 52 45 68 30 80',
+        points: [
+          { x: 30, y: 32 },
+          { x: 48, y: 20 },
+          { x: 68, y: 34 },
+          { x: 50, y: 58 },
+          { x: 30, y: 80 },
+        ],
+      },
+      {
+        id: 'stroke_num2_2',
+        label: 'Nét ngang đáy',
+        guidePathD: 'M 30 80 L 72 80',
+        points: [
+          { x: 30, y: 80 },
+          { x: 50, y: 80 },
+          { x: 72, y: 80 },
+        ],
+      },
+    ],
+  },
+
+  // 12. Mẫu TRACE: Bé tập tô nét số 4
+  {
+    id: 'numbers_trace_4',
+    title: 'Tô Nét Số 4',
+    module: 'numbers',
+    template: 'trace',
+    ageMin: 3,
+    learningGoal: 'Bé tập vẽ các nét xiên, ngang và thẳng của số 4',
+    promptText: 'Bé dùng tay tô theo nét số 4 nhé!',
+    promptAudio: 'prompt_trace_number',
+    rewardStars: 1,
+    displayChar: '4',
+    charAudio: 'count_4',
+    subLabel: 'Số 4 - Bốn Chiếc Xe 🚗',
+    strokes: [
+      {
+        id: 'stroke_num4_1',
+        label: 'Nét xiên rồi ngang',
+        guidePathD: 'M 60 20 L 28 58 L 72 58',
+        points: [
+          { x: 60, y: 20 },
+          { x: 44, y: 39 },
+          { x: 28, y: 58 },
+          { x: 50, y: 58 },
+          { x: 72, y: 58 },
+        ],
+      },
+      {
+        id: 'stroke_num4_2',
+        label: 'Nét sổ thẳng',
+        guidePathD: 'M 58 40 L 58 82',
+        points: [
+          { x: 58, y: 40 },
+          { x: 58, y: 62 },
+          { x: 58, y: 82 },
+        ],
+      },
+    ],
+  },
+
+  // 13. Mẫu TRACE: Bé tập tô nét số 5
+  {
+    id: 'numbers_trace_5',
+    title: 'Tô Nét Số 5',
+    module: 'numbers',
+    template: 'trace',
+    ageMin: 3,
+    learningGoal: 'Bé tập vẽ nét cong bụng tròn và nét mũ của số 5',
+    promptText: 'Bé dùng tay tô theo nét số 5 nhé!',
+    promptAudio: 'prompt_trace_number',
+    rewardStars: 1,
+    displayChar: '5',
+    charAudio: 'number_5',
+    subLabel: 'Số 5 - Năm Ngôi Sao ⭐',
+    strokes: [
+      {
+        id: 'stroke_num5_1',
+        label: 'Nét sổ và bụng cong',
+        guidePathD: 'M 38 22 L 36 46 C 45 44 68 46 68 62 C 68 76 46 82 34 76',
+        points: [
+          { x: 38, y: 22 },
+          { x: 36, y: 46 },
+          { x: 64, y: 48 },
+          { x: 68, y: 66 },
+          { x: 38, y: 78 },
+        ],
+      },
+      {
+        id: 'stroke_num5_2',
+        label: 'Nét ngang trên',
+        guidePathD: 'M 36 22 L 68 22',
+        points: [
+          { x: 36, y: 22 },
+          { x: 52, y: 22 },
+          { x: 68, y: 22 },
+        ],
+      },
+    ],
+  },
 ]

@@ -5,6 +5,10 @@ export interface Profile {
   nickname: string
   ageBand: '2-3' | '3-4' | '4-5'
   createdAt: number
+  avatar?: string // '⚡' | '🐱' | '🦖' | '🐰' | '🐼' | '🦁'
+  theme?: 'gold' | 'ocean' | 'candy' | 'forest'
+  streakDays?: number
+  lastActiveDate?: string
 }
 
 export interface ActivityRun {
@@ -81,6 +85,10 @@ export class HocVaChoiDatabase extends Dexie {
       nickname: 'Bé Yêu',
       ageBand: '3-4',
       createdAt: Date.now(),
+      avatar: '⚡',
+      theme: 'gold',
+      streakDays: 1,
+      lastActiveDate: new Date().toISOString().split('T')[0],
     }
     await this.profiles.add(defaultProfile)
 

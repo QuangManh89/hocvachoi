@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
-import { Settings, Star, ChevronRight, Edit3, Play, Lock, Gift } from 'lucide-react'
+import { Settings, Star, ChevronRight, Edit3, Play, Lock, Gift, Flame } from 'lucide-react'
 import { Pikachu, type PikachuState } from '@/components/Pikachu'
 import { allActivities } from '@/content/activities'
 import type { AnyActivityData } from '@/core/activity-engine/types'
 import { db } from '@/core/storage/db'
 import { audioService } from '@/core/audio/AudioService'
 import { StickerAlbumModal } from '@/features/rewards/StickerAlbumModal'
+import { getStreakData } from '@/core/mastery/streakTracker'
 
 interface HomeScreenProps {
   profileId: string
   childName: string
   ageBand: string
+  avatar?: string
+  theme?: 'gold' | 'ocean' | 'candy' | 'forest'
   onSelectActivity: (activity: AnyActivityData) => void
   onOpenParentGate: () => void
   onOpenProfile: () => void
@@ -22,6 +25,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   profileId,
   childName,
   ageBand,
+  avatar = '⚡',
+  theme = 'gold',
   onSelectActivity,
   onOpenParentGate,
   onOpenProfile,
@@ -30,8 +35,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [pikaState, setPikaState] = useState<PikachuState>('wave')
   const [totalStars, setTotalStars] = useState(0)
   const [stickerCount, setStickerCount] = useState(0)
+  const [streakDays, setStreakDays] = useState(1)
   const [isStickerModalOpen, setIsStickerModalOpen] = useState(false)
-  const [selectedModule, setSelectedModule] = useState<'colors_shapes' | 'numbers' | 'alphabet'>('colors_shapes')
+  const [selectedModule, setSelectedModule] = useState<'colors_shapes' | 'numbers' | 'alphabet' | 'tones'>('colors_shapes')
   const [unlockedAlphabetGroups, setUnlockedAlphabetGroups] = useState<number[]>([1])
   const [lockedNotice, setLockedNotice] = useState<string | null>(null)
 
@@ -53,7 +59,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         setStickerCount(count)
       })
 
-    // 2. Lấy danh sách nhóm chữ cái đã mở
+    // 2. Lấy chuỗi ngày chăm học
+    getStreakData(profileId).then((data) => {
+      setStreakDays(data.currentStreak)
+    })
+
+    // 3. Lấy danh sách nhóm chữ cái đã mở
     db.settings.get('unlockedAlphabetGroups').then((s) => {
       if (s?.value) setUnlockedAlphabetGroups(s.value)
     })
@@ -69,6 +80,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     audioService.playVoice('pikachu_greeting')
     setPikaState('wave')
   }
+
+  // Màu nền theo chủ đề
+  const themeBg =
+    theme === 'ocean'
+      ? 'bg-[#E0F7FA]'
+      : theme === 'candy'
+      ? 'bg-[#FCE4EC]'
+      : theme === 'forest'
+      ? 'bg-[#E8F5E9]'
+      : 'bg-[#FFF8EC]'
 
   // Lọc hoạt động theo module
   const currentActivities = allActivities.filter((a) => a.module === selectedModule)
@@ -92,17 +113,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   }
 
   return (
-    <div className="relative w-full h-full flex flex-col justify-between p-3 md:p-6 bg-[#FFF8EC] text-[#5A3E36] overflow-y-auto select-none">
-      {/* 1. Header Bar: Profile bé, Sao ⭐, Sổ Nhãn Dán 🎁 & Nút Phụ Huynh */}
+    <div className={`relative w-full h-full flex flex-col justify-between p-3 md:p-6 ${themeBg} text-[#5A3E36] overflow-y-auto select-none transition-colors duration-300`}>
+      {/* 1. Header Bar: Profile bé, Sao ⭐, Sổ Nhãn Dán 🎁, Streak 🔥 & Nút Phụ Huynh */}
       <header className="flex justify-between items-center w-full z-10 pt-1 pb-2">
         {/* Nút bấm vào hồ sơ để đổi tên bé */}
         <button
           onClick={onOpenProfile}
           className="flex items-center gap-2 bg-white/90 active:bg-white px-3 py-1.5 rounded-full border-2 border-[#5A3E36]/15 shadow-sm active:scale-95 transition-transform"
-          title="Chạm để đổi tên bé"
+          title="Chạm để mở Góc Của Bé"
         >
-          <div className="w-8 h-8 rounded-full bg-[#FED000] flex items-center justify-center font-bold text-sm text-[#5A3E36] shadow-sm">
-            ⚡
+          <div className="w-8 h-8 rounded-full bg-[#FED000] flex items-center justify-center font-bold text-base text-[#5A3E36] shadow-sm">
+            {avatar}
           </div>
           <div className="text-left hidden sm:block">
             <div className="font-extrabold text-xs leading-none flex items-center gap-1 text-[#5A3E36]">
@@ -113,20 +134,30 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Nút Chuỗi Ngày Chăm Học (Streak 🔥) */}
+          <button
+            onClick={onOpenProfile}
+            className="flex items-center gap-1 bg-white text-[#FF7043] px-2.5 sm:px-3 py-1.5 rounded-full border-2 border-[#5A3E36] shadow-sm font-black text-xs sm:text-sm active:scale-95 transition-transform"
+            title="Chuỗi ngày chăm học của bé"
+          >
+            <Flame className="w-4 h-4 fill-[#FF7043]" />
+            <span>{streakDays}d</span>
+          </button>
+
           {/* Nút Mở Sổ Nhãn Dán (Sticker Album) */}
           <button
             onClick={() => setIsStickerModalOpen(true)}
-            className="flex items-center gap-1.5 bg-white text-[#5A3E36] px-3.5 py-1.5 rounded-full border-2 border-[#5A3E36] shadow-sm font-black text-sm active:scale-95 transition-transform"
+            className="flex items-center gap-1.5 bg-white text-[#5A3E36] px-2.5 sm:px-3.5 py-1.5 rounded-full border-2 border-[#5A3E36] shadow-sm font-black text-xs sm:text-sm active:scale-95 transition-transform"
             title="Xem Sổ Nhãn Dán của bé"
           >
-            <Gift className="w-5 h-5 text-[#FF7043]" />
+            <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-[#FF7043]" />
             <span>{stickerCount}/12</span>
           </button>
 
           {/* Khối huy hiệu đếm Sao ⭐ */}
-          <div className="flex items-center gap-1.5 bg-[#FFD25E] text-[#5A3E36] px-3.5 py-1.5 rounded-full border-2 border-[#5A3E36] shadow-sm font-black text-sm sm:text-base">
-            <Star className="w-5 h-5 text-[#5A3E36] fill-[#5A3E36]" />
+          <div className="flex items-center gap-1 bg-[#FFD25E] text-[#5A3E36] px-2.5 sm:px-3.5 py-1.5 rounded-full border-2 border-[#5A3E36] shadow-sm font-black text-xs sm:text-sm">
+            <Star className="w-4 h-4 sm:w-5 sm:h-5 text-[#5A3E36] fill-[#5A3E36]" />
             <span>{totalStars}</span>
           </div>
         </div>
@@ -227,6 +258,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             }`}
           >
             🔤 Chữ Cái ({allActivities.filter((a) => a.module === 'alphabet').length})
+          </button>
+
+          <button
+            onClick={() => setSelectedModule('tones')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-black border-2 transition-all ${
+              selectedModule === 'tones'
+                ? 'bg-[#AB47BC] border-[#5A3E36] text-white shadow-sm'
+                : 'bg-white/80 border-[#5A3E36]/20 text-[#8C6D62]'
+            }`}
+          >
+            🎵 Dấu Thanh ({allActivities.filter((a) => a.module === 'tones').length})
           </button>
         </div>
       </div>

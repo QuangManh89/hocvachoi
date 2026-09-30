@@ -135,6 +135,62 @@ export const alphabetActivities: AnyActivityData[] = [
       },
     ],
   },
+  {
+    id: 'alphabet_g1_trace_e',
+    title: 'Tô Nét Chữ E',
+    module: 'alphabet',
+    template: 'trace',
+    ageMin: 3,
+    learningGoal: 'Bé tập vẽ nét sổ thẳng và 3 nét ngang của chữ E',
+    promptText: 'Bé dùng tay tô theo nét chữ E nhé!',
+    promptAudio: 'prompt_trace_letter',
+    rewardStars: 1,
+    displayChar: 'E',
+    charAudio: 'letter_e',
+    subLabel: 'Chữ E trong Em bé 👶',
+    strokes: [
+      {
+        id: 'stroke_e_1',
+        label: 'Nét sổ thẳng đứng',
+        guidePathD: 'M 32 20 L 32 80',
+        points: [
+          { x: 32, y: 20 },
+          { x: 32, y: 50 },
+          { x: 32, y: 80 },
+        ],
+      },
+      {
+        id: 'stroke_e_2',
+        label: 'Nét ngang trên',
+        guidePathD: 'M 32 20 L 70 20',
+        points: [
+          { x: 32, y: 20 },
+          { x: 50, y: 20 },
+          { x: 70, y: 20 },
+        ],
+      },
+      {
+        id: 'stroke_e_3',
+        label: 'Nét ngang giữa',
+        guidePathD: 'M 32 50 L 62 50',
+        points: [
+          { x: 32, y: 50 },
+          { x: 48, y: 50 },
+          { x: 62, y: 50 },
+        ],
+      },
+      {
+        id: 'stroke_e_4',
+        label: 'Nét ngang dưới',
+        guidePathD: 'M 32 80 L 70 80',
+        points: [
+          { x: 32, y: 80 },
+          { x: 50, y: 80 },
+          { x: 70, y: 80 },
+        ],
+      },
+    ],
+  },
 
   // ==========================================
   // NHÓM 2: Nguyên âm có dấu (ă, â, ê, ô, ơ, ư)
@@ -192,6 +248,118 @@ export const alphabetActivities: AnyActivityData[] = [
       { id: 'pair_o_horn', label: 'Chữ ơ', audioId: 'letter_o_horn_word', leftType: 'letter', leftValue: 'Ơ ơ', rightType: 'word', rightValue: '🌶️ Quả ớt' },
     ],
   },
+  {
+    id: 'alphabet_g2_trace_a_breve',
+    title: 'Tô Nét Chữ Ă',
+    module: 'alphabet',
+    template: 'trace',
+    ageMin: 3,
+    learningGoal: 'Bé vẽ nét chữ Ă với chiếc trăng khuyết cong xinh',
+    promptText: 'Bé dùng tay tô theo nét chữ Ă nhé!',
+    promptAudio: 'prompt_trace_letter',
+    rewardStars: 1,
+    displayChar: 'Ă',
+    charAudio: 'letter_a_breve',
+    subLabel: 'Chữ Ă trong Bé ăn cơm 🍚',
+    strokes: [
+      {
+        id: 'stroke_abreve_1',
+        label: 'Nét xiên trái',
+        guidePathD: 'M 50 26 L 24 82',
+        points: [
+          { x: 50, y: 26 },
+          { x: 36, y: 54 },
+          { x: 24, y: 82 },
+        ],
+      },
+      {
+        id: 'stroke_abreve_2',
+        label: 'Nét xiên phải',
+        guidePathD: 'M 50 26 L 76 82',
+        points: [
+          { x: 50, y: 26 },
+          { x: 64, y: 54 },
+          { x: 76, y: 82 },
+        ],
+      },
+      {
+        id: 'stroke_abreve_3',
+        label: 'Nét ngang',
+        guidePathD: 'M 34 60 L 66 60',
+        points: [
+          { x: 34, y: 60 },
+          { x: 50, y: 60 },
+          { x: 66, y: 60 },
+        ],
+      },
+      {
+        id: 'stroke_abreve_4',
+        label: 'Nét trăng khuyết',
+        guidePathD: 'M 36 14 C 44 22 56 22 64 14',
+        points: [
+          { x: 36, y: 14 },
+          { x: 50, y: 20 },
+          { x: 64, y: 14 },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'alphabet_g2_trace_a_circumflex',
+    title: 'Tô Nét Chữ Â',
+    module: 'alphabet',
+    template: 'trace',
+    ageMin: 3,
+    learningGoal: 'Bé vẽ nét chữ Â với chiếc nón tam giác xinh xắn',
+    promptText: 'Bé dùng tay tô theo nét chữ Â nhé!',
+    promptAudio: 'prompt_trace_letter',
+    rewardStars: 1,
+    displayChar: 'Â',
+    charAudio: 'letter_a_circumflex',
+    subLabel: 'Chữ Â trong Cái ấm 🫖',
+    strokes: [
+      {
+        id: 'stroke_acirc_1',
+        label: 'Nét xiên trái',
+        guidePathD: 'M 50 26 L 24 82',
+        points: [
+          { x: 50, y: 26 },
+          { x: 36, y: 54 },
+          { x: 24, y: 82 },
+        ],
+      },
+      {
+        id: 'stroke_acirc_2',
+        label: 'Nét xiên phải',
+        guidePathD: 'M 50 26 L 76 82',
+        points: [
+          { x: 50, y: 26 },
+          { x: 64, y: 54 },
+          { x: 76, y: 82 },
+        ],
+      },
+      {
+        id: 'stroke_acirc_3',
+        label: 'Nét ngang',
+        guidePathD: 'M 34 60 L 66 60',
+        points: [
+          { x: 34, y: 60 },
+          { x: 50, y: 60 },
+          { x: 66, y: 60 },
+        ],
+      },
+      {
+        id: 'stroke_acirc_4',
+        label: 'Nón mũ tam giác',
+        guidePathD: 'M 36 18 L 50 8 L 64 18',
+        points: [
+          { x: 36, y: 18 },
+          { x: 50, y: 8 },
+          { x: 64, y: 18 },
+        ],
+      },
+    ],
+  },
 
   // ==========================================
   // NHÓM 3: Phụ âm quen thuộc (m, n, t, l, h, c)
@@ -247,6 +415,35 @@ export const alphabetActivities: AnyActivityData[] = [
       { id: 'pair_c', label: 'Chữ c', audioId: 'letter_c_word', leftType: 'letter', leftValue: 'C c', rightType: 'word', rightValue: '🐟 Con cá' },
       { id: 'pair_h', label: 'Chữ h', audioId: 'letter_h_word', leftType: 'letter', leftValue: 'H h', rightType: 'word', rightValue: '🌸 Bông hoa' },
       { id: 'pair_l', label: 'Chữ l', audioId: 'letter_l_word', leftType: 'letter', leftValue: 'L l', rightType: 'word', rightValue: '🍃 Chiếc lá' },
+    ],
+  },
+  {
+    id: 'alphabet_g3_trace_c',
+    title: 'Tô Nét Chữ C',
+    module: 'alphabet',
+    template: 'trace',
+    ageMin: 3,
+    learningGoal: 'Bé tập vẽ nét cong hở phải của chữ C',
+    promptText: 'Bé dùng tay tô theo nét chữ C nhé!',
+    promptAudio: 'prompt_trace_letter',
+    rewardStars: 1,
+    displayChar: 'C',
+    charAudio: 'letter_c',
+    subLabel: 'Chữ C trong Con cá 🐟',
+    strokes: [
+      {
+        id: 'stroke_c_1',
+        label: 'Nét cong hở phải',
+        guidePathD: 'M 72 32 C 60 18 36 20 28 38 C 20 54 26 74 44 80 C 60 84 72 74 72 68',
+        points: [
+          { x: 72, y: 32 },
+          { x: 50, y: 20 },
+          { x: 26, y: 38 },
+          { x: 24, y: 58 },
+          { x: 44, y: 80 },
+          { x: 72, y: 68 },
+        ],
+      },
     ],
   },
 

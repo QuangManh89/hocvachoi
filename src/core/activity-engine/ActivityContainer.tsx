@@ -111,6 +111,8 @@ export const ActivityContainer: React.FC<ActivityContainerProps> = ({
               ? '🌈 Màu sắc & Hình dạng'
               : activity.module === 'alphabet'
               ? '🔤 Chữ Cái Tiếng Việt'
+              : activity.module === 'tones'
+              ? '🎵 Dấu Thanh Tiếng Việt'
               : '🔢 Con Số & Đếm'}
           </span>
           <h2 className="text-xl md:text-2xl font-black text-[#5A3E36]">

@@ -88,6 +88,8 @@ export const App: React.FC = () => {
           profileId={profileId}
           childName={childName}
           ageBand={ageBand}
+          avatar={profile?.avatar}
+          theme={profile?.theme}
           onSelectActivity={(activity) => setCurrentActivity(activity)}
           onOpenParentGate={() => setIsParentGateOpen(true)}
           onOpenProfile={() => setIsProfileModalOpen(true)}

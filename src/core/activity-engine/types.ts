@@ -8,12 +8,12 @@ export type ActivityTemplateType =
   | 'sort'
   | 'trace'
 
-export type ModuleType = 'colors_shapes' | 'numbers' | 'alphabet'
+export type ModuleType = 'colors_shapes' | 'numbers' | 'alphabet' | 'tones'
 
 export const ActivityBaseSchema = z.object({
   id: z.string(),
   title: z.string(),
-  module: z.enum(['colors_shapes', 'numbers', 'alphabet']),
+  module: z.enum(['colors_shapes', 'numbers', 'alphabet', 'tones']),
   template: z.enum(['explore', 'listen_pick', 'match', 'tap_count', 'sort', 'trace']),
   ageMin: z.number().default(2),
   learningGoal: z.string(),

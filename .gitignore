@@ -26,5 +26,6 @@ dist-ssr
 # Hoc Va Choi privacy & raw assets
 *.hvc
 *.wav
+!src/assets/sounds/*.wav
 private/
 .gemini/

@@ -9,7 +9,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  base: process.env.NODE_ENV === 'production' ? '/hoc-va-choi/' : '/',
+  base: process.env.NODE_ENV === 'production' ? '/hocvachoi/' : '/',
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, './src'),

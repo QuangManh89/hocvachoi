@@ -11,7 +11,7 @@ export interface SessionChoice {
 
 export interface SessionQuestion {
   id: string
-  category: 'color' | 'shape' | 'number' | 'letter'
+  category: 'color' | 'shape' | 'number' | 'letter' | 'tone'
   group?: number // Cho các câu hỏi chữ cái (1 - 5)
   promptText: string
   promptAudio: string
@@ -457,6 +457,63 @@ export const QUESTION_POOL: SessionQuestion[] = [
       { id: 'l_k', label: 'Chữ ca', audioId: 'letter_k', color: '#FED000', icon: 'K k', isCorrect: false },
     ],
   },
+
+  // --- 5. DẤU THANH TIẾNG VIỆT ---
+  {
+    id: 'q_tone_sac',
+    category: 'tone',
+    promptText: 'Bé chạm vào Dấu Sắc nhé!',
+    promptAudio: 'prompt_find_dau_sac',
+    choices: [
+      { id: 't_sac', label: 'Dấu Sắc (/)', audioId: 'dau_sac', color: '#FF5252', icon: '⚡ /', isCorrect: true },
+      { id: 't_huyen', label: 'Dấu Huyền (\\)', audioId: 'dau_huyen', color: '#448AFF', icon: '\\', isCorrect: false },
+      { id: 't_nang', label: 'Dấu Nặng (.)', audioId: 'dau_nang', color: '#66BB6A', icon: '●', isCorrect: false },
+    ],
+  },
+  {
+    id: 'q_tone_huyen',
+    category: 'tone',
+    promptText: 'Bé chạm vào Dấu Huyền nhé!',
+    promptAudio: 'prompt_find_dau_huyen',
+    choices: [
+      { id: 't_hoi', label: 'Dấu Hỏi (?)', audioId: 'dau_hoi', color: '#FED000', icon: '?', isCorrect: false },
+      { id: 't_huyen', label: 'Dấu Huyền (\\)', audioId: 'dau_huyen', color: '#448AFF', icon: '\\', isCorrect: true },
+      { id: 't_sac', label: 'Dấu Sắc (/)', audioId: 'dau_sac', color: '#FF7043', icon: '/', isCorrect: false },
+    ],
+  },
+  {
+    id: 'q_tone_hoi',
+    category: 'tone',
+    promptText: 'Bé chạm vào Dấu Hỏi nhé!',
+    promptAudio: 'prompt_find_dau_hoi',
+    choices: [
+      { id: 't_sac', label: 'Dấu Sắc (/)', audioId: 'dau_sac', color: '#FF5252', icon: '/', isCorrect: false },
+      { id: 't_hoi', label: 'Dấu Hỏi (?)', audioId: 'dau_hoi', color: '#FED000', icon: '?', isCorrect: true },
+      { id: 't_nga', label: 'Dấu Ngã (~)', audioId: 'dau_nga', color: '#AB47BC', icon: '~', isCorrect: false },
+    ],
+  },
+  {
+    id: 'q_tone_nga',
+    category: 'tone',
+    promptText: 'Bé chạm vào Dấu Ngã nhé!',
+    promptAudio: 'prompt_find_dau_nga',
+    choices: [
+      { id: 't_nga', label: 'Dấu Ngã (~)', audioId: 'dau_nga', color: '#AB47BC', icon: '~', isCorrect: true },
+      { id: 't_nang', label: 'Dấu Nặng (.)', audioId: 'dau_nang', color: '#66BB6A', icon: '●', isCorrect: false },
+      { id: 't_huyen', label: 'Dấu Huyền (\\)', audioId: 'dau_huyen', color: '#448AFF', icon: '\\', isCorrect: false },
+    ],
+  },
+  {
+    id: 'q_tone_nang',
+    category: 'tone',
+    promptText: 'Bé chạm vào Dấu Nặng nhé!',
+    promptAudio: 'prompt_find_dau_nang',
+    choices: [
+      { id: 't_sac', label: 'Dấu Sắc (/)', audioId: 'dau_sac', color: '#FF7043', icon: '/', isCorrect: false },
+      { id: 't_nga', label: 'Dấu Ngã (~)', audioId: 'dau_nga', color: '#AB47BC', icon: '~', isCorrect: false },
+      { id: 't_nang', label: 'Dấu Nặng (.)', audioId: 'dau_nang', color: '#66BB6A', icon: '●', isCorrect: true },
+    ],
+  },
 ]
 
 /**
@@ -508,9 +565,9 @@ export async function generate15QuestionSession(profileId: string): Promise<Sess
     // 5. Sắp xếp giảm dần theo điểm ưu tiên
     scoredQuestions.sort((a, b) => b.score - a.score)
 
-    // 6. Lấy 15 câu đa dạng thể loại (cân đối Màu sắc, Hình khối, Số, Chữ cái)
+    // 6. Lấy 15 câu đa dạng thể loại (cân đối Màu sắc, Hình khối, Số, Chữ cái, Dấu thanh)
     const selected: SessionQuestion[] = []
-    const categoriesCount = { color: 0, shape: 0, number: 0, letter: 0 }
+    const categoriesCount = { color: 0, shape: 0, number: 0, letter: 0, tone: 0 }
 
     for (const item of scoredQuestions) {
       if (selected.length >= 15) break
