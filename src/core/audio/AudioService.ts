@@ -393,6 +393,46 @@ class AudioService {
   }
 
   /**
+   * Phát nốt nhạc chuông Xylophone với chuỗi họa âm ngân vang trong trẻo
+   */
+  public playNote(freq: number, duration = 0.85): void {
+    if (!Howler.ctx) return
+    try {
+      const ctx = Howler.ctx
+      if (ctx.state === 'suspended') {
+        ctx.resume()
+      }
+
+      const now = ctx.currentTime
+      // 1. Họa âm cơ bản (sine wave ngân dài)
+      const osc1 = ctx.createOscillator()
+      const gain1 = ctx.createGain()
+      osc1.type = 'sine'
+      osc1.frequency.setValueAtTime(freq, now)
+      gain1.gain.setValueAtTime(0.25, now)
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + duration)
+      osc1.connect(gain1)
+      gain1.connect(ctx.destination)
+      osc1.start(now)
+      osc1.stop(now + duration)
+
+      // 2. Họa âm sắc bén của phím gõ kim loại (triangle wave tắt nhanh)
+      const osc2 = ctx.createOscillator()
+      const gain2 = ctx.createGain()
+      osc2.type = 'triangle'
+      osc2.frequency.setValueAtTime(freq * 2, now)
+      gain2.gain.setValueAtTime(0.12, now)
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + duration * 0.35)
+      osc2.connect(gain2)
+      gain2.connect(ctx.destination)
+      osc2.start(now)
+      osc2.stop(now + duration * 0.35)
+    } catch {
+      // Bỏ qua nếu Web Audio chưa sẵn sàng
+    }
+  }
+
+  /**
    * Phát một câu thoại:
    * SỬ DỤNG html5: true ĐỂ PHÁT QUA MEDIA AUDIO SESSION TRÊN IPAD
    * (Giúp nghe được âm thanh ngay cả khi iPad đang bật chế độ Im Lặng trong Control Center)

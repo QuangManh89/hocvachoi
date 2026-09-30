@@ -608,3 +608,71 @@ export async function generate15QuestionSession(profileId: string): Promise<Sess
 
 // Giữ lại tên cũ để tương thích ngược
 export const generate12QuestionSession = generate15QuestionSession
+
+/**
+ * Thuật toán sinh 5 câu ôn tập thông minh (Smart Review)
+ * Ưu tiên các câu bé từng gặp khó khăn, trả lời chưa vững (level < 3 hoặc streak <= 1)
+ */
+export async function generateSmartReviewSession(profileId: string, count = 5): Promise<SessionQuestion[]> {
+  try {
+    const unlockedSetting = await db.settings.get('unlockedAlphabetGroups')
+    const unlockedGroups: number[] = unlockedSetting?.value || [1]
+
+    const availableQuestions = QUESTION_POOL.filter((q) => {
+      if (q.category === 'letter') {
+        return q.group ? unlockedGroups.includes(q.group) : true
+      }
+      return true
+    })
+
+    const masteries = await db.itemMastery
+      .where('profileId')
+      .equals(profileId)
+      .toArray()
+
+    const masteryMap = new Map<string, { level: number; streak: number; lastSeenAt: number }>()
+    masteries.forEach((m) => {
+      masteryMap.set(m.itemId, { level: m.level, streak: m.streak, lastSeenAt: m.lastSeenAt })
+    })
+
+    // Chấm điểm ưu tiên ôn tập:
+    // Cấp độ càng thấp, streak càng thấp, hoặc lâu chưa gặp -> điểm ưu tiên càng cao
+    const scoredQuestions = availableQuestions.map((q) => {
+      const hist = masteryMap.get(q.id)
+      let reviewPriority = 0
+
+      if (hist) {
+        if (hist.level < 2) {
+          reviewPriority = 5000 + (3 - hist.level) * 1000 // Ưu tiên rất cao cho câu còn yếu
+        } else if (hist.streak <= 1) {
+          reviewPriority = 3000
+        } else {
+          // Điểm tính theo thời gian đã trôi qua
+          const elapsedHours = (Date.now() - hist.lastSeenAt) / (1000 * 60 * 60)
+          reviewPriority = 1000 + elapsedHours * 10
+        }
+      } else {
+        // Chưa học: độ ưu tiên vừa phải
+        reviewPriority = 500 + Math.random() * 200
+      }
+
+      return { question: q, score: reviewPriority + Math.random() * 100 }
+    })
+
+    scoredQuestions.sort((a, b) => b.score - a.score)
+
+    // Lấy count câu (mặc định 5 câu)
+    const selected = scoredQuestions.slice(0, count).map((item) => {
+      return {
+        ...item.question,
+        choices: [...item.question.choices].sort(() => Math.random() - 0.5),
+      }
+    })
+
+    return selected.sort(() => Math.random() - 0.5)
+  } catch (e) {
+    console.warn('Lỗi sinh phiên ôn tập, dùng fallback:', e)
+    return [...QUESTION_POOL].sort(() => Math.random() - 0.5).slice(0, count)
+  }
+}
+

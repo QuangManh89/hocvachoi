@@ -8,6 +8,10 @@ import { db } from '@/core/storage/db'
 import { audioService } from '@/core/audio/AudioService'
 import { StickerAlbumModal } from '@/features/rewards/StickerAlbumModal'
 import { getStreakData } from '@/core/mastery/streakTracker'
+import { XylophoneModal } from '@/features/music/XylophoneModal'
+import { ColoringStudioModal } from '@/features/coloring/ColoringStudioModal'
+import { SmartReviewModal } from '@/features/review/SmartReviewModal'
+
 
 interface HomeScreenProps {
   profileId: string
@@ -40,6 +44,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [selectedModule, setSelectedModule] = useState<'colors_shapes' | 'numbers' | 'alphabet' | 'tones'>('colors_shapes')
   const [unlockedAlphabetGroups, setUnlockedAlphabetGroups] = useState<number[]>([1])
   const [lockedNotice, setLockedNotice] = useState<string | null>(null)
+  const [isXylophoneOpen, setIsXylophoneOpen] = useState(false)
+  const [isColoringOpen, setIsColoringOpen] = useState(false)
+  const [isReviewOpen, setIsReviewOpen] = useState(false)
+
 
   useEffect(() => {
     // 1. Đếm tổng số sao bé đã đạt được từ Dexie
@@ -221,7 +229,47 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </button>
       </div>
 
+      {/* 3.1 CÁC KHÔNG GIAN SÁNG TẠO & ÔN TẬP: BÉ TẬP TÔ, ĐÀN GÕ & ÔN TẬP NHẸ */}
+      <div className="w-full max-w-xl mx-auto my-2 grid grid-cols-3 gap-2.5 z-10">
+        {/* 1. Bé Tập Tô */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsColoringOpen(true)}
+          className="btn-kid min-h-[74px] bg-[#FFF3E0] hover:bg-[#FFE0B2] border-3 border-[#5A3E36] rounded-2xl p-2 flex flex-col items-center justify-center text-center shadow-sm transition-all"
+        >
+          <span className="text-2xl drop-shadow-sm">🖍️</span>
+          <span className="text-xs font-black text-[#5A3E36] mt-0.5 leading-tight">Bé Tập Tô</span>
+          <span className="text-[10px] font-bold text-[#8C6D62] hidden sm:inline">5 mẫu tranh</span>
+        </motion.button>
+
+        {/* 2. Đàn Xylophone */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsXylophoneOpen(true)}
+          className="btn-kid min-h-[74px] bg-[#E1F5FE] hover:bg-[#B3E5FC] border-3 border-[#5A3E36] rounded-2xl p-2 flex flex-col items-center justify-center text-center shadow-sm transition-all"
+        >
+          <span className="text-2xl drop-shadow-sm">🎹</span>
+          <span className="text-xs font-black text-[#5A3E36] mt-0.5 leading-tight">Đàn Gõ</span>
+          <span className="text-[10px] font-bold text-[#8C6D62] hidden sm:inline">8 phím đồng dao</span>
+        </motion.button>
+
+        {/* 3. Ôn Tập Nhẹ */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setIsReviewOpen(true)}
+          className="btn-kid min-h-[74px] bg-[#E8F5E9] hover:bg-[#C8E6C9] border-3 border-[#5A3E36] rounded-2xl p-2 flex flex-col items-center justify-center text-center shadow-sm transition-all"
+        >
+          <span className="text-2xl drop-shadow-sm">🔄</span>
+          <span className="text-xs font-black text-[#5A3E36] mt-0.5 leading-tight">Ôn Tập Nhẹ</span>
+          <span className="text-[10px] font-bold text-[#8C6D62] hidden sm:inline">5 câu nhớ bài</span>
+        </motion.button>
+      </div>
+
       {/* 4. Tab Chọn Module Từng Bài Học Lẻ */}
+
       <div className="flex flex-col sm:flex-row justify-between items-center w-full max-w-xl mx-auto mt-2 mb-1.5 px-1 z-10 gap-1.5">
         <span className="text-xs font-black uppercase tracking-wider text-[#8C6D62]">
           Chọn bài học lẻ ({currentActivities.length} bài):
@@ -381,6 +429,33 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             .equals(profileId)
             .count()
             .then(setStickerCount)
+        }}
+      />
+
+      {/* Đàn Xylophone Modal */}
+      <XylophoneModal
+        isOpen={isXylophoneOpen}
+        onClose={() => setIsXylophoneOpen(false)}
+      />
+
+      {/* Phòng Tranh Bé Tập Tô Modal */}
+      <ColoringStudioModal
+        isOpen={isColoringOpen}
+        childName={childName}
+        onClose={() => setIsColoringOpen(false)}
+      />
+
+      {/* Ôn Tập Nhẹ Modal */}
+      <SmartReviewModal
+        isOpen={isReviewOpen}
+        profileId={profileId}
+        childName={childName}
+        onClose={() => {
+          setIsReviewOpen(false)
+          db.activityRuns
+            .filter((r) => r.completed)
+            .count()
+            .then(setTotalStars)
         }}
       />
     </div>
