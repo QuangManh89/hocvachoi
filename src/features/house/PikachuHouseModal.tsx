@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { X, Moon, Sun, RotateCcw, Trash2 } from 'lucide-react'
-import { Pikachu, type PikachuState } from '@/components/Pikachu'
+import { Companion, type CompanionType } from '@/components/Companion'
+import { type PikachuState } from '@/components/Pikachu'
 import { audioService } from '@/core/audio/AudioService'
 import { db } from '@/core/storage/db'
 import { STICKERS, getUnlockedStickerIds } from '@/content/stickers'
@@ -10,6 +11,7 @@ interface PikachuHouseModalProps {
   isOpen: boolean
   profileId: string
   childName: string
+  companion?: CompanionType
   onClose: () => void
 }
 
@@ -35,6 +37,7 @@ export const PikachuHouseModal: React.FC<PikachuHouseModalProps> = ({
   isOpen,
   profileId,
   childName,
+  companion = 'pikachu',
   onClose,
 }) => {
   const [isNightMode, setIsNightMode] = useState(false)
@@ -127,25 +130,41 @@ export const PikachuHouseModal: React.FC<PikachuHouseModalProps> = ({
 
     if (nextMode) {
       setPikaState('sleep')
-      audioService.playVoice('pikachu_buon_ngu')
-      setNoticeText('Đêm rồi, Pikachu chúc bé ngủ ngon nhé... khò khò...')
+      if (companion === 'kitty') {
+        audioService.playVoice('cat_sleep')
+        setNoticeText('Đêm rồi, Kitty chúc bé ngủ ngon nhé... khò khò... 🌸')
+      } else {
+        audioService.playVoice('pikachu_buon_ngu')
+        setNoticeText('Đêm rồi, Pikachu chúc bé ngủ ngon nhé... khò khò...')
+      }
     } else {
       setPikaState('wave')
-      audioService.playVoice('pikachu_greeting')
-      setNoticeText('Trời sáng rồi! Pikachu thức dậy chơi cùng bé nào!')
+      if (companion === 'kitty') {
+        audioService.playVoice('kitty_greeting')
+        setNoticeText('Trời sáng rồi! Kitty thức dậy chơi cùng bé nào! 🎀')
+      } else {
+        audioService.playVoice('pikachu_greeting')
+        setNoticeText('Trời sáng rồi! Pikachu thức dậy chơi cùng bé nào!')
+      }
     }
   }
 
-  // Chạm vào Pikachu
+  // Chạm vào Bạn Đồng Hành
   const handlePikachuClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     audioService.playSpark(700)
     if (isNightMode) {
       setPikaState('sleep')
-      setNoticeText('Suỵt... Pikachu đang ngủ say giấc nồng zzz...')
+      setNoticeText(`Suỵt... ${companion === 'kitty' ? 'Kitty' : 'Pikachu'} đang ngủ say giấc nồng zzz...`)
     } else {
       setPikaState('cheer')
-      setNoticeText(`Pika Pika! Pikachu yêu bé ${childName} nhất trần đời! ⚡`)
+      if (companion === 'kitty') {
+        audioService.playVoice('kitty_greeting')
+        setNoticeText(`Meo meo! Kitty yêu bé ${childName} nhất trần đời! 💖`)
+      } else {
+        audioService.playVoice('pikachu_greeting')
+        setNoticeText(`Pika Pika! Pikachu yêu bé ${childName} nhất trần đời! ⚡`)
+      }
       setTimeout(() => setPikaState('idle'), 1500)
     }
   }
@@ -171,11 +190,15 @@ export const PikachuHouseModal: React.FC<PikachuHouseModalProps> = ({
         {/* Thanh tiêu đề */}
         <div className="flex items-center justify-between gap-3 mb-2 pr-10">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-[#FFD25E] rounded-2xl border-2 border-[#5A3E36] flex items-center justify-center text-xl shadow-sm">
-              🏠
+            <div className={`w-10 h-10 rounded-2xl border-2 border-[#5A3E36] flex items-center justify-center text-xl shadow-sm ${
+              companion === 'kitty' ? 'bg-[#F8BBD0]' : 'bg-[#FFD25E]'
+            }`}>
+              {companion === 'kitty' ? '🎀' : '🏠'}
             </div>
             <div>
-              <h2 className="text-lg font-black leading-tight">Căn Phòng Của Pikachu</h2>
+              <h2 className="text-lg font-black leading-tight">
+                {companion === 'kitty' ? 'Căn Phòng Của Kitty' : 'Căn Phòng Của Pikachu'}
+              </h2>
               <p className="text-xs text-[#8C6D62]">Dùng sticker để trang trí góc nhỏ cho bạn nhỏ</p>
             </div>
           </div>
@@ -227,25 +250,29 @@ export const PikachuHouseModal: React.FC<PikachuHouseModalProps> = ({
           {/* Sàn nhà & Thảm trải sàn */}
           <div className="absolute bottom-0 left-0 right-0 h-28 bg-[#BCAAA4]/40 border-t-3 border-[#5A3E36]/30 flex items-center justify-center">
             {/* Thảm tròn dễ thương */}
-            <div className="w-64 h-20 bg-[#FED000]/60 border-3 border-[#5A3E36]/30 rounded-full shadow-inner flex items-center justify-center text-xs font-black text-[#5A3E36]/60">
-              Thảm êm của Pikachu
+            <div className={`w-64 h-20 border-3 border-[#5A3E36]/30 rounded-full shadow-inner flex items-center justify-center text-xs font-black text-[#5A3E36]/60 ${
+              companion === 'kitty' ? 'bg-[#F8BBD0]/60' : 'bg-[#FED000]/60'
+            }`}>
+              {companion === 'kitty' ? 'Thảm êm của Kitty 🎀' : 'Thảm êm của Pikachu ⚡'}
             </div>
           </div>
 
           {/* Giường ngủ êm ái góc phải */}
           <div className="absolute bottom-5 right-6 w-32 h-22 bg-[#FFF3E0] border-3 border-[#5A3E36] rounded-2xl shadow-md p-2 flex flex-col justify-between">
-            <div className="w-10 h-6 bg-[#FED000] border-2 border-[#5A3E36] rounded-lg self-end" />
+            <div className={`w-10 h-6 border-2 border-[#5A3E36] rounded-lg self-end ${
+              companion === 'kitty' ? 'bg-[#F8BBD0]' : 'bg-[#FED000]'
+            }`} />
             <div className="w-full h-10 bg-[#FF8A65]/40 border-t-2 border-[#5A3E36] rounded-b-xl flex items-center justify-center text-xs font-black text-[#5A3E36]">
               🛏️ Giường ngủ
             </div>
           </div>
 
-          {/* NHÂN VẬT PIKACHU Ở TRUNG TÂM PHÒNG */}
+          {/* NHÂN VẬT ĐỒNG HÀNH Ở TRUNG TÂM PHÒNG */}
           <div
             onClick={handlePikachuClick}
             className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center cursor-pointer z-10"
           >
-            <Pikachu state={pikaState} size={155} />
+            <Companion character={companion} state={pikaState} size={155} />
             <div className="bg-white/95 border-2 border-[#5A3E36] px-3 py-1 rounded-full text-xs font-black text-[#5A3E36] shadow-sm -mt-2">
               {isNightMode ? 'Khò khò... zzz' : 'Chạm vào tớ nè!'}
             </div>

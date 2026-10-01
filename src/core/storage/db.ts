@@ -5,8 +5,9 @@ export interface Profile {
   nickname: string
   ageBand: '2-3' | '3-4' | '4-5'
   createdAt: number
-  avatar?: string // '⚡' | '🐱' | '🦖' | '🐰' | '🐼' | '🦁'
+  avatar?: string // '⚡' | '🐱' | '🎀' | '🦖' | '🐰' | '🐼' | '🦁'
   theme?: 'gold' | 'ocean' | 'candy' | 'forest'
+  companion?: 'pikachu' | 'kitty'
   streakDays?: number
   lastActiveDate?: string
 }
@@ -87,6 +88,7 @@ export class HocVaChoiDatabase extends Dexie {
       createdAt: Date.now(),
       avatar: '⚡',
       theme: 'gold',
+      companion: 'pikachu',
       streakDays: 1,
       lastActiveDate: new Date().toISOString().split('T')[0],
     }

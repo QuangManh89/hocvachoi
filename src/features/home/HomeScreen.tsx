@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { Settings, Star, ChevronRight, Edit3, Play, Lock, Gift, Flame } from 'lucide-react'
-import { Pikachu, type PikachuState } from '@/components/Pikachu'
+import type { PikachuState } from '@/components/Pikachu'
+import { Companion, type CompanionType } from '@/components/Companion'
 import { allActivities } from '@/content/activities'
 import type { AnyActivityData } from '@/core/activity-engine/types'
 import { db } from '@/core/storage/db'
@@ -23,10 +24,12 @@ interface HomeScreenProps {
   ageBand: string
   avatar?: string
   theme?: 'gold' | 'ocean' | 'candy' | 'forest'
+  companion?: CompanionType
   onSelectActivity: (activity: AnyActivityData) => void
   onOpenParentGate: () => void
   onOpenProfile: () => void
   onStartMultiQuestionSession: () => void
+  onCompanionChange?: (companion: CompanionType, theme: 'candy' | 'gold') => void
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -35,10 +38,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   ageBand,
   avatar = '⚡',
   theme = 'gold',
+  companion = 'pikachu',
   onSelectActivity,
   onOpenParentGate,
   onOpenProfile,
   onStartMultiQuestionSession,
+  onCompanionChange,
 }) => {
   const [pikaState, setPikaState] = useState<PikachuState>('wave')
   const [totalStars, setTotalStars] = useState(0)
@@ -92,8 +97,59 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     return cleanup
   }, [profileId])
 
-  const handlePikachuClick = () => {
-    audioService.playVoice('pikachu_greeting')
+  const [currentCompanion, setCurrentCompanion] = useState<CompanionType>(companion)
+
+  useEffect(() => {
+    if (companion) {
+      setCurrentCompanion(companion)
+    }
+  }, [companion])
+
+  const handleSwitchCompanion = async (comp: CompanionType) => {
+    if (comp === currentCompanion) {
+      if (comp === 'kitty') {
+        audioService.playVoice('kitty_greeting')
+      } else {
+        audioService.playVoice('pikachu_greeting')
+      }
+      setPikaState('cheer')
+      return
+    }
+
+    setCurrentCompanion(comp)
+    const newTheme = comp === 'kitty' ? 'candy' : 'gold'
+    const newAvatar = comp === 'kitty' ? '🎀' : '⚡'
+
+    try {
+      const p = await db.profiles.get(profileId)
+      if (p) {
+        await db.profiles.put({
+          ...p,
+          companion: comp,
+          theme: newTheme,
+          avatar: newAvatar,
+        })
+      }
+    } catch (e) {
+      console.error(e)
+    }
+
+    onCompanionChange?.(comp, newTheme)
+
+    if (comp === 'kitty') {
+      audioService.playVoice('kitty_greeting')
+    } else {
+      audioService.playVoice('pikachu_greeting')
+    }
+    setPikaState('cheer')
+  }
+
+  const handleCompanionClick = () => {
+    if (currentCompanion === 'kitty') {
+      audioService.playVoice('kitty_greeting')
+    } else {
+      audioService.playVoice('pikachu_greeting')
+    }
     setPikaState('wave')
   }
 
@@ -196,13 +252,45 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </div>
       )}
 
-      {/* 2. Pikachu Đồng Hành */}
+      {/* 2. Bạn Đồng Hành & Bộ Chuyển Đổi Nhanh Chuẩn Kiosk Trẻ Em */}
       <div className="flex flex-col items-center justify-center my-1 z-10">
-        <div className="relative cursor-pointer" onClick={handlePikachuClick}>
-          <Pikachu state={pikaState} size={165} />
+        {/* Bộ chuyển đổi nhân vật 1 chạm */}
+        <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm p-1.5 rounded-full border-2 border-[#5A3E36]/20 shadow-sm mb-1">
+          <button
+            type="button"
+            onClick={() => handleSwitchCompanion('pikachu')}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-black text-xs transition-all active:scale-95 ${
+              currentCompanion === 'pikachu'
+                ? 'bg-[#FED000] text-[#5A3E36] border-2 border-[#5A3E36] shadow-md scale-105'
+                : 'text-[#8C6D62] hover:text-[#5A3E36]'
+            }`}
+            title="Đồng hành cùng Pikachu"
+          >
+            <span className="text-sm">⚡</span>
+            <span>Pikachu</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleSwitchCompanion('kitty')}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-black text-xs transition-all active:scale-95 ${
+              currentCompanion === 'kitty'
+                ? 'bg-[#F48FB1] text-[#5A3E36] border-2 border-[#5A3E36] shadow-md scale-105'
+                : 'text-[#8C6D62] hover:text-[#E91E63]'
+            }`}
+            title="Đồng hành cùng Kitty (Tự động đổi màu Kẹo Hồng)"
+          >
+            <span className="text-sm">🎀</span>
+            <span>Kitty</span>
+          </button>
+        </div>
+
+        {/* Nhân vật Đồng Hành */}
+        <div className="relative cursor-pointer" onClick={handleCompanionClick}>
+          <Companion character={currentCompanion} state={pikaState} size={165} />
           {/* Bong bóng lời chào */}
           <div className="absolute -top-2 -right-10 bg-white border-2 border-[#5A3E36] px-3 py-1.5 rounded-full text-xs font-bold text-[#5A3E36] shadow-md animate-bounce">
-            Chào {childName}! ⚡
+            {currentCompanion === 'kitty' ? `Chào ${childName}! 🎀` : `Chào ${childName}! ⚡`}
           </div>
         </div>
       </div>
@@ -211,11 +299,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <div className="w-full max-w-xl mx-auto my-1.5 z-10">
         <button
           onClick={onStartMultiQuestionSession}
-          className="w-full btn-kid min-h-[72px] bg-gradient-to-r from-[#FED000] via-[#FFE055] to-[#FED000] border-3 border-[#5A3E36] rounded-3xl p-3 shadow-lg flex items-center justify-between active:scale-98 transition-transform"
+          className={`w-full btn-kid min-h-[72px] border-3 border-[#5A3E36] rounded-3xl p-3 shadow-lg flex items-center justify-between active:scale-98 transition-transform ${
+            currentCompanion === 'kitty'
+              ? 'bg-gradient-to-r from-[#F8BBD0] via-[#F48FB1] to-[#F8BBD0]'
+              : 'bg-gradient-to-r from-[#FED000] via-[#FFE055] to-[#FED000]'
+          }`}
         >
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm border-2 border-[#5A3E36]/20">
-              ⚡
+              {currentCompanion === 'kitty' ? '🎀' : '⚡'}
             </div>
             <div className="text-left">
               <div className="font-black text-base sm:text-lg text-[#5A3E36] flex items-center gap-2 leading-tight">
@@ -287,15 +379,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <span className="text-[10px] font-bold text-[#8C6D62] hidden sm:inline">Khám phá tranh</span>
         </motion.button>
 
-        {/* 5. Nhà Pikachu */}
+        {/* 5. Nhà Pikachu / Nhà Kitty */}
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsHouseOpen(true)}
           className="btn-kid min-h-[72px] bg-[#E0F2F1] hover:bg-[#B2DFDB] border-3 border-[#5A3E36] rounded-2xl p-1.5 sm:p-2 flex flex-col items-center justify-center text-center shadow-sm transition-all"
         >
-          <span className="text-2xl drop-shadow-sm">🏠</span>
-          <span className="text-xs font-black text-[#5A3E36] mt-0.5 leading-tight">Nhà Pikachu</span>
+          <span className="text-2xl drop-shadow-sm">{currentCompanion === 'kitty' ? '🎀' : '🏠'}</span>
+          <span className="text-xs font-black text-[#5A3E36] mt-0.5 leading-tight">
+            {currentCompanion === 'kitty' ? 'Nhà Kitty' : 'Nhà Pikachu'}
+          </span>
           <span className="text-[10px] font-bold text-[#8C6D62] hidden sm:inline">Dán sticker</span>
         </motion.button>
 
@@ -495,6 +589,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         isOpen={isReviewOpen}
         profileId={profileId}
         childName={childName}
+        companion={currentCompanion}
         onClose={() => {
           setIsReviewOpen(false)
           db.activityRuns
@@ -518,11 +613,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         onClose={() => setIsStoryOpen(false)}
       />
 
-      {/* Căn Phòng Của Pikachu Modal */}
+      {/* Căn Phòng Của Pikachu / Kitty Modal */}
       <PikachuHouseModal
         isOpen={isHouseOpen}
         profileId={profileId}
         childName={childName}
+        companion={currentCompanion}
         onClose={() => setIsHouseOpen(false)}
       />
     </div>

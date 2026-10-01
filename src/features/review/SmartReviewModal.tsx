@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'motion/react'
 import confetti from 'canvas-confetti'
 import { X, Volume2, Star, RotateCcw, CheckCircle2 } from 'lucide-react'
-import { Pikachu, type PikachuState } from '@/components/Pikachu'
+import { Companion, type CompanionType } from '@/components/Companion'
+import { type PikachuState } from '@/components/Pikachu'
 import { audioService } from '@/core/audio/AudioService'
 import { db } from '@/core/storage/db'
 import {
@@ -17,6 +18,7 @@ interface SmartReviewModalProps {
   isOpen: boolean
   profileId: string
   childName: string
+  companion?: CompanionType
   onClose: () => void
 }
 
@@ -24,6 +26,7 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
   isOpen,
   profileId,
   childName,
+  companion = 'pikachu',
   onClose,
 }) => {
   const [questions, setQuestions] = useState<SessionQuestion[]>([])
@@ -239,7 +242,7 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
               animate={{ scale: 1, opacity: 1 }}
               className="mb-4"
             >
-              <Pikachu state="cheer" size={140} />
+              <Companion character={companion} state="cheer" size={140} />
             </motion.div>
 
             <h3 className="text-2xl font-black text-[#5A3E36] mb-1">
@@ -279,7 +282,7 @@ export const SmartReviewModal: React.FC<SmartReviewModalProps> = ({
             {/* Pikachu & Lời hướng dẫn */}
             <div className="flex items-center gap-3 bg-white/90 border-2 border-[#5A3E36]/15 rounded-3xl p-3 mb-4 shadow-sm">
               <div className="cursor-pointer shrink-0" onClick={handleReplayPrompt}>
-                <Pikachu state={pikaState} size={85} />
+                <Companion character={companion} state={pikaState} size={85} />
               </div>
               <div className="flex-1">
                 <div className="text-sm sm:text-base font-extrabold text-[#5A3E36] mb-1 leading-snug">

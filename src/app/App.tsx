@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Sparkles, Zap } from 'lucide-react'
-import { Pikachu } from '@/components/Pikachu'
+import { Companion, type CompanionType } from '@/components/Companion'
 import { audioService } from '@/core/audio/AudioService'
 import { ParentGate } from '@/core/gate/ParentGate'
 import { ProfileModal } from '@/components/ProfileModal'
@@ -27,11 +27,17 @@ export const App: React.FC = () => {
     })
   }, [])
 
+  const companion: CompanionType = profile?.companion || 'pikachu'
+
   // Mở khóa âm thanh iOS/iPadOS tại lần chạm đầu tiên
   const handleStartApp = async () => {
     audioService.unlock()
     setIsUnlocked(true)
-    audioService.playVoice('pikachu_greeting')
+    if (companion === 'kitty') {
+      audioService.playVoice('kitty_greeting')
+    } else {
+      audioService.playVoice('pikachu_greeting')
+    }
 
     const bgmSetting = await db.settings.get('bgmEnabled')
     const isBgmEnabled = bgmSetting ? Boolean(bgmSetting.value) : true
@@ -50,10 +56,14 @@ export const App: React.FC = () => {
           onClick={handleStartApp}
           className="fixed inset-0 z-40 bg-[#FFF8EC]/95 backdrop-blur-sm flex flex-col items-center justify-center cursor-pointer p-6"
         >
-          <Pikachu state="wave" size={240} className="mb-6 drop-shadow-2xl" />
+          <Companion character={companion} state="wave" size={240} className="mb-6 drop-shadow-2xl" />
           <h1 className="text-3xl md:text-4xl font-extrabold text-[#5A3E36] mb-3 text-center flex items-center justify-center gap-2">
-            <span>Học Và Chơi cùng Pikachu</span>
-            <Zap className="w-8 h-8 text-[#FED000] fill-[#FED000]" />
+            <span>{companion === 'kitty' ? 'Học Và Chơi cùng Kitty' : 'Học Và Chơi cùng Pikachu'}</span>
+            {companion === 'kitty' ? (
+              <span className="text-3xl">🎀</span>
+            ) : (
+              <Zap className="w-8 h-8 text-[#FED000] fill-[#FED000]" />
+            )}
           </h1>
           <p className="text-lg md:text-xl text-[#8C6D62] mb-3 text-center max-w-sm">
             Ứng dụng học sớm tiếng Việt cho bé
@@ -61,8 +71,14 @@ export const App: React.FC = () => {
           <p className="text-xs text-[#8C6D62]/80 mb-6 text-center max-w-xs">
             💡 Lưu ý trên iPad: Vuốt góc phải xuống kiểm tra biểu tượng Quả Chuông không bị gạch chéo
           </p>
-          <button className="btn-kid bg-[#FED000] text-[#5A3E36] text-2xl font-black px-10 py-5 rounded-3xl shadow-lg border-4 border-white active:scale-95 transition-transform flex items-center gap-3">
-            <Sparkles className="w-8 h-8 text-[#FF3B30]" />
+          <button
+            className={`btn-kid text-2xl font-black px-10 py-5 rounded-3xl shadow-lg border-4 border-white active:scale-95 transition-transform flex items-center gap-3 ${
+              companion === 'kitty'
+                ? 'bg-[#F48FB1] text-white'
+                : 'bg-[#FED000] text-[#5A3E36]'
+            }`}
+          >
+            <Sparkles className={`w-8 h-8 ${companion === 'kitty' ? 'text-white' : 'text-[#FF3B30]'}`} />
             <span>Chạm Để Bắt Đầu</span>
           </button>
         </div>
@@ -74,6 +90,7 @@ export const App: React.FC = () => {
         <MultiQuestionSession
           profileId={profileId}
           childName={childName}
+          companion={companion}
           onBack={() => setIsMultiSessionActive(false)}
         />
       ) : currentActivity ? (
@@ -90,6 +107,19 @@ export const App: React.FC = () => {
           ageBand={ageBand}
           avatar={profile?.avatar}
           theme={profile?.theme}
+          companion={companion}
+          onCompanionChange={(comp, thm) => {
+            setProfile((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    companion: comp,
+                    theme: thm,
+                    avatar: comp === 'kitty' ? '🎀' : '⚡',
+                  }
+                : null
+            )
+          }}
           onSelectActivity={(activity) => setCurrentActivity(activity)}
           onOpenParentGate={() => setIsParentGateOpen(true)}
           onOpenProfile={() => setIsProfileModalOpen(true)}

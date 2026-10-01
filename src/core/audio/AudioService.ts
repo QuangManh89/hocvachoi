@@ -18,9 +18,11 @@ class AudioService {
     // Nhạc nền thư giãn nhẹ nhàng (BGM)
     bgm_gentle: new URL('../../assets/sounds/bgm_gentle.wav', import.meta.url).href,
 
-    // Nhân vật bạn đồng hành (Pikachu)
+    // Nhân vật bạn đồng hành (Pikachu & Kitty)
     pikachu_greeting: new URL('../../assets/sounds/pikachu_chao.mp3', import.meta.url).href,
     pikachu_sleep: new URL('../../assets/sounds/pikachu_buon_ngu.mp3', import.meta.url).href,
+    kitty_greeting: new URL('../../assets/sounds/meo_bong_khen.mp3', import.meta.url).href,
+    kitty_cheer: new URL('../../assets/sounds/cheer_finish.mp3', import.meta.url).href,
     cat_greeting: new URL('../../assets/sounds/pikachu_chao.mp3', import.meta.url).href,
     cat_praise: new URL('../../assets/sounds/meo_bong_khen.mp3', import.meta.url).href,
     cat_encourage: new URL('../../assets/sounds/meo_bong_dong_vien.mp3', import.meta.url).href,

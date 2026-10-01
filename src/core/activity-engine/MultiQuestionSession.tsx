@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import confetti from 'canvas-confetti'
 import { ArrowLeft, Volume2, Sparkles, Home, RotateCcw, Star } from 'lucide-react'
-import { Pikachu, type PikachuState } from '@/components/Pikachu'
+import { Companion, type CompanionType } from '@/components/Companion'
+import { type PikachuState } from '@/components/Pikachu'
 import { audioService } from '@/core/audio/AudioService'
 import { db } from '@/core/storage/db'
 import {
@@ -17,12 +18,14 @@ import { ShapeGraphic, isShapeItem } from '@/components/ShapeGraphic'
 interface MultiQuestionSessionProps {
   profileId: string
   childName: string
+  companion?: CompanionType
   onBack: () => void
 }
 
 export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
   profileId,
   childName,
+  companion = 'pikachu',
   onBack,
 }) => {
   const [questions, setQuestions] = useState<SessionQuestion[]>([])
@@ -214,8 +217,10 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
   if (isLoading || !currentQ) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center bg-[#FFF8EC] text-[#5A3E36]">
-        <Pikachu state="think" size={160} />
-        <p className="mt-4 text-lg font-bold">Pikachu đang chuẩn bị 15 câu hỏi cho bé...</p>
+        <Companion character={companion} state="think" size={160} />
+        <p className="mt-4 text-lg font-bold">
+          {companion === 'kitty' ? 'Kitty' : 'Pikachu'} đang chuẩn bị 15 câu hỏi cho bé...
+        </p>
       </div>
     )
   }
@@ -271,10 +276,10 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
         </button>
       </header>
 
-      {/* 2. Pikachu Đồng Hành & Lời Thoại */}
+      {/* 2. Bạn Đồng Hành & Lời Thoại */}
       <div className="flex items-center justify-center gap-3 my-2 z-10">
         <div className="flex-shrink-0 cursor-pointer" onClick={handleReplayPrompt}>
-          <Pikachu state={pikaState} size={130} />
+          <Companion character={companion} state={pikaState} size={130} />
         </div>
         <div className="relative bg-white border-3 border-[#5A3E36] rounded-2xl px-5 py-3 shadow-md max-w-sm">
           <p className="text-base md:text-lg font-bold text-[#5A3E36] leading-snug">
@@ -346,7 +351,7 @@ export const MultiQuestionSession: React.FC<MultiQuestionSessionProps> = ({
       {/* 4. Màn Chúc Mừng Hoàn Thành Cả 15 Câu (Grand Celebration) */}
       {isSessionFinished && (
         <div className="fixed inset-0 z-50 bg-[#FFF8EC]/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center overflow-y-auto">
-          <Pikachu state="cheer" size={200} className="mb-2 drop-shadow-2xl" />
+          <Companion character={companion} state="cheer" size={200} className="mb-2 drop-shadow-2xl" />
 
           <div className="flex items-center gap-2 mb-1">
             <Sparkles className="w-7 h-7 text-[#FED000]" />

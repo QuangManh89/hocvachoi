@@ -24,11 +24,11 @@ const NICKNAME_SUGGESTIONS = [
 
 const AVATAR_OPTIONS = [
   { icon: '⚡', label: 'Pikachu' },
+  { icon: '🎀', label: 'Kitty' },
   { icon: '🐱', label: 'Mèo Bông' },
   { icon: '🦖', label: 'Khủng Long' },
   { icon: '🐰', label: 'Thỏ Con' },
   { icon: '🐼', label: 'Gấu Trúc' },
-  { icon: '🦁', label: 'Sư Tử' },
 ]
 
 const THEME_OPTIONS: Array<{
@@ -52,6 +52,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const [ageBand, setAgeBand] = useState<'2-3' | '3-4' | '4-5'>('3-4')
   const [avatar, setAvatar] = useState('⚡')
   const [theme, setTheme] = useState<'gold' | 'ocean' | 'candy' | 'forest'>('gold')
+  const [companion, setCompanion] = useState<'pikachu' | 'kitty'>('pikachu')
   const [starsCount, setStarsCount] = useState(0)
   const [streakData, setStreakData] = useState<StreakData | null>(null)
   const [activeTab, setActiveTab] = useState<'info' | 'streak'>('info')
@@ -65,6 +66,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
       setAgeBand(prof.ageBand)
       setAvatar(prof.avatar || '⚡')
       setTheme(prof.theme || 'gold')
+      setCompanion(prof.companion || 'pikachu')
 
       getStreakData(prof.id).then(setStreakData)
     })
@@ -77,6 +79,19 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
 
   if (!isOpen || !profile) return null
 
+  const handleSelectCompanion = (comp: 'pikachu' | 'kitty') => {
+    setCompanion(comp)
+    if (comp === 'kitty') {
+      setTheme('candy')
+      if (avatar === '⚡') setAvatar('🎀')
+      audioService.playVoice('kitty_greeting')
+    } else {
+      setTheme('gold')
+      if (avatar === '🎀') setAvatar('⚡')
+      audioService.playVoice('pikachu_greeting')
+    }
+  }
+
   const handleSave = async () => {
     const trimmed = nickname.trim() || 'Bé Yêu'
     const updated: Profile = {
@@ -85,10 +100,15 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
       ageBand,
       avatar,
       theme,
+      companion,
     }
 
     await db.profiles.put(updated)
-    audioService.playVoice('pikachu_greeting')
+    if (companion === 'kitty') {
+      audioService.playVoice('kitty_greeting')
+    } else {
+      audioService.playVoice('pikachu_greeting')
+    }
     onProfileUpdated(updated)
     onClose()
   }
@@ -148,10 +168,62 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
         <div className="flex-1 overflow-y-auto pr-1">
           {activeTab === 'info' ? (
             <div>
-              {/* 1. Chọn Avatar Linh Vật */}
+              {/* 1. Chọn Bạn Đồng Hành Chính (Pikachu ⚡ hoặc Kitty 🎀) */}
+              <div className="mb-4 bg-white/70 p-3 rounded-2xl border-2 border-[#5A3E36]/15">
+                <label className="block text-xs font-black text-[#5A3E36] mb-2 flex items-center justify-between">
+                  <span>✨ BẠN ĐỒNG HÀNH CÙNG BÉ:</span>
+                  <span className="text-[11px] font-bold text-[#8C6D62]">
+                    {companion === 'kitty' ? '🌸 Chủ đề Kẹo Hồng' : '⚡ Chủ đề Vàng Nắng'}
+                  </span>
+                </label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {/* Nút chọn Pikachu */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectCompanion('pikachu')}
+                    className={`p-3 rounded-2xl border-3 flex items-center gap-3 transition-all ${
+                      companion === 'pikachu'
+                        ? 'bg-[#FFF9C4] border-[#FED000] ring-3 ring-[#FED000]/60 shadow-md scale-102'
+                        : 'bg-white/90 border-[#5A3E36]/20 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-[#FED000] border-2 border-[#5A3E36] flex items-center justify-center text-2xl shadow-sm">
+                      ⚡
+                    </div>
+                    <div className="text-left">
+                      <div className="font-black text-sm text-[#5A3E36]">Pikachu ⚡</div>
+                      <div className="text-[10px] font-bold text-[#8C6D62]">Vàng rực rỡ</div>
+                    </div>
+                  </button>
+
+                  {/* Nút chọn Kitty */}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectCompanion('kitty')}
+                    className={`p-3 rounded-2xl border-3 flex items-center gap-3 transition-all ${
+                      companion === 'kitty'
+                        ? 'bg-[#FCE4EC] border-[#F48FB1] ring-3 ring-[#F48FB1]/60 shadow-md scale-102'
+                        : 'bg-white/90 border-[#5A3E36]/20 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-[#F8BBD0] border-2 border-[#5A3E36] flex items-center justify-center text-2xl shadow-sm">
+                      🎀
+                    </div>
+                    <div className="text-left">
+                      <div className="font-black text-sm text-[#5A3E36]">Kitty 🎀</div>
+                      <div className="text-[10px] font-bold text-[#E91E63]">Kẹo Hồng ngọt ngào</div>
+                    </div>
+                  </button>
+                </div>
+                <div className="text-[11px] text-[#8C6D62] mt-2 font-medium italic">
+                  💡 Chọn Kitty sẽ tự động đổi màu và chủ đề sang Kẹo Hồng cho bé!
+                </div>
+              </div>
+
+              {/* 2. Chọn Avatar Linh Vật Của Bé */}
               <div className="mb-4">
                 <label className="block text-xs font-bold text-[#8C6D62] mb-1.5">
-                  Chọn bạn đồng hành của bé:
+                  Biểu tượng đại diện của bé:
                 </label>
                 <div className="grid grid-cols-6 gap-2">
                   {AVATAR_OPTIONS.map((opt) => (
