@@ -71,3 +71,17 @@ html, body, #root {
 .btn-kid:active {
   transform: scale(0.94);
 }
+
+/* Hỗ trợ SafeArea cho viền màn hình iPad / iPhone Kiosk */
+.safe-top {
+  padding-top: max(8px, env(safe-area-inset-top));
+}
+
+.safe-bottom {
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+}
+
+.safe-x {
+  padding-left: max(8px, env(safe-area-inset-left));
+  padding-right: max(8px, env(safe-area-inset-right));
+}

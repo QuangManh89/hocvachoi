@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import confetti from 'canvas-confetti'
 import {
   Settings,
   X,
@@ -17,6 +18,13 @@ import {
   AlertCircle,
   Music,
   Printer,
+  Calendar,
+  RotateCw,
+  Tablet,
+  Flame,
+  Check,
+  Heart,
+  Award,
 } from 'lucide-react'
 import { db, type Profile } from '@/core/storage/db'
 import { ALPHABET_GROUPS, allActivities } from '@/content/activities'
@@ -28,6 +36,112 @@ interface ParentDashboardProps {
   onClose: () => void
   onProfileChange: (updated: Profile) => void
 }
+
+export interface WeeklyReportData {
+  dateRangeText: string
+  totalMinutes: number
+  avgMinutesPerDay: number
+  activeDaysCount: number
+  totalRuns: number
+  masteredNumbers: string[]
+  masteredLetters: string[]
+  masteredShapesColors: string[]
+  learningItems: string[]
+}
+
+export interface PlayTogetherSuggestion {
+  id: string
+  icon: string
+  title: string
+  category: 'color_shape' | 'letter_song' | 'number_life' | 'body_emotion'
+  categoryLabel: string
+  badgeColor: string
+  action: string
+  benefit: string
+}
+
+const PLAY_TOGETHER_IDEAS: PlayTogetherSuggestion[] = [
+  {
+    id: 'pt_1',
+    icon: '🔴',
+    title: 'Thợ Săn Sắc Màu Quanh Nhà',
+    category: 'color_shape',
+    categoryLabel: 'Màu Sắc & Đời Sống',
+    badgeColor: 'bg-red-100 text-red-700 border-red-300',
+    action: 'Ba mẹ hô to: "Pikachu nhờ bé tìm 3 đồ vật màu đỏ trong phòng khách!". Cùng bé chạy đi tìm chiếc gối, quả táo, hay chiếc áo màu đỏ.',
+    benefit: 'Chuyển hóa nhận biết màu sắc từ màn hình sang không gian thực tế 3D.',
+  },
+  {
+    id: 'pt_2',
+    icon: '🎵',
+    title: 'Hát Bài "Kìa Con Bướm Vàng"',
+    category: 'letter_song',
+    categoryLabel: 'Âm Nhạc & Chữ Cái',
+    badgeColor: 'bg-amber-100 text-amber-700 border-amber-300',
+    action: 'Cùng bé hát vang bài "Kìa con bướm vàng" và vỗ tay nhịp nhàng. Khi hát đến từ "Vàng", "Bay", ba mẹ và bé cùng vỗ tay thật to!',
+    benefit: 'Rèn luyện ngữ điệu cao thấp của tiếng Việt và kích thích thính giác.',
+  },
+  {
+    id: 'pt_3',
+    icon: '🥄',
+    title: 'Bé Giúp Mẹ Đếm Thìa Đũa',
+    category: 'number_life',
+    categoryLabel: 'Số Lượng Thực Tế',
+    badgeColor: 'bg-blue-100 text-blue-700 border-blue-300',
+    action: 'Trước giờ ăn, nhờ bé: "Bé lấy giúp mẹ 3 chiếc thìa cho cả nhà nhé!". Cùng bé chạm đếm từng chiếc: "Một, hai, ba!".',
+    benefit: 'Hình thành khái niệm số lượng gắn liền với sinh hoạt gia đình.',
+  },
+  {
+    id: 'pt_4',
+    icon: '🏠',
+    title: 'Lâu Đài Hình Học Từ Chăn Gối',
+    category: 'color_shape',
+    categoryLabel: 'Hình Dạng & Không Gian',
+    badgeColor: 'bg-emerald-100 text-emerald-700 border-emerald-300',
+    action: 'Dùng gối vuông làm tường, chăn tam giác làm mái nhà. Ba mẹ hỏi: "Ngôi nhà của Pikachu có mái hình gì nhỉ?" để bé trả lời.',
+    benefit: 'Phát triển tư duy hình học và kích thích trí tưởng tượng không gian.',
+  },
+  {
+    id: 'pt_5',
+    icon: '🌾',
+    title: 'Vẽ Nét Chữ Trên Đĩa Bột',
+    category: 'letter_song',
+    categoryLabel: 'Vận Động Tinh & Chữ Cái',
+    badgeColor: 'bg-purple-100 text-purple-700 border-purple-300',
+    action: 'Đổ một lớp mỏng bột mì lên đĩa phẳng. Ba mẹ dùng ngón tay vẽ chữ A hoặc O, sau đó bé vẽ đè lên hoặc lắc nhẹ đĩa để vẽ chữ mới.',
+    benefit: 'Cảm giác xúc giác đầu ngón tay giúp não bộ ghi nhớ mặt chữ sâu hơn.',
+  },
+  {
+    id: 'pt_6',
+    icon: '🍇',
+    title: 'Đĩa Trái Cây Đếm Ngon Lành',
+    category: 'number_life',
+    categoryLabel: 'Số Lượng & Xúc Giác',
+    badgeColor: 'bg-teal-100 text-teal-700 border-teal-300',
+    action: 'Xếp 5 quả nho hoặc múi quýt lên đĩa. Mẹ bảo: "Bé ăn 1 quả, còn mấy quả nào?". Cùng bé đếm lại số quả còn lại.',
+    benefit: 'Hình thành khái niệm thêm - bớt số lượng tự nhiên không áp lực.',
+  },
+  {
+    id: 'pt_7',
+    icon: '🐰',
+    title: 'Đoán Cảm Xúc Cùng Bé',
+    category: 'body_emotion',
+    categoryLabel: 'Cảm Xúc & Ngôn Ngữ',
+    badgeColor: 'bg-pink-100 text-pink-700 border-pink-300',
+    action: 'Mẹ làm điệu bộ Pikachu cười tít mắt rồi hỏi: "Mẹ đang vui hay đang buồn ngủ?". Sau đó tới lượt bé làm mặt cười hoặc ngạc nhiên.',
+    benefit: 'Phát triển trí tuệ cảm xúc (EQ) và khả năng biểu đạt cảm xúc.',
+  },
+  {
+    id: 'pt_8',
+    icon: '🔍',
+    title: 'Trò Chơi "Tôi Nhìn Thấy..."',
+    category: 'color_shape',
+    categoryLabel: 'Quan Sát & Từ Vựng',
+    badgeColor: 'bg-orange-100 text-orange-700 border-orange-300',
+    action: 'Ba mẹ nói: "Tôi nhìn thấy một vật hình tròn màu vàng trên tường". Bé sẽ đảo mắt tìm chiếc đồng hồ tròn!',
+    benefit: 'Rèn luyện khả năng tập trung, lắng nghe gợi ý và tư duy liên tưởng.',
+  },
+]
 
 export const ParentDashboard: React.FC<ParentDashboardProps> = ({
   profile,
@@ -46,6 +160,145 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
   const [storageInfo, setStorageInfo] = useState<{ isPersisted: boolean; usageMb: string } | null>(null)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Báo cáo tuần & Gợi ý chơi cùng con
+  const [weeklyReport, setWeeklyReport] = useState<WeeklyReportData | null>(null)
+  const [selectedIdeaIndices, setSelectedIdeaIndices] = useState<number[]>([0, 1, 2])
+  const [hasPlayedToday, setHasPlayedToday] = useState(false)
+
+  const checkStoragePersistence = async () => {
+    if (navigator.storage && navigator.storage.persisted) {
+      const isPersisted = await navigator.storage.persisted()
+      let usageMb = '0'
+      if (navigator.storage.estimate) {
+        const estimate = await navigator.storage.estimate()
+        if (estimate.usage) {
+          usageMb = (estimate.usage / (1024 * 1024)).toFixed(2)
+        }
+      }
+      setStorageInfo({ isPersisted, usageMb })
+    }
+  }
+
+  const loadWeeklyReportData = async (profId: string) => {
+    try {
+      const now = Date.now()
+      const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000
+
+      const startDate = new Date(sevenDaysAgo)
+      const endDate = new Date(now)
+      const pad = (n: number) => n.toString().padStart(2, '0')
+      const dateRangeText = `${pad(startDate.getDate())}/${pad(startDate.getMonth() + 1)} - ${pad(endDate.getDate())}/${pad(endDate.getMonth() + 1)}/${endDate.getFullYear()}`
+
+      const runs = await db.activityRuns
+        .where('profileId')
+        .equals(profId)
+        .filter((r) => r.startedAt >= sevenDaysAgo)
+        .toArray()
+
+      const activeDates = new Set<string>()
+      let totalDurationMs = 0
+      runs.forEach((r) => {
+        const d = new Date(r.startedAt).toISOString().split('T')[0]
+        activeDates.add(d)
+        totalDurationMs += r.durationMs && r.durationMs > 0 ? r.durationMs : 45000
+      })
+
+      const totalMinutes = Math.max(runs.length > 0 ? 1 : 0, Math.round(totalDurationMs / 60000))
+      const activeDaysCount = activeDates.size
+      const avgMinutesPerDay = activeDaysCount > 0 ? Math.round(totalMinutes / activeDaysCount) : (runs.length > 0 ? 1 : 0)
+
+      const masteries = await db.itemMastery
+        .where('profileId')
+        .equals(profId)
+        .toArray()
+
+      const masteredNumbers: string[] = []
+      const masteredLetters: string[] = []
+      const masteredShapesColors: string[] = []
+      const learningItems: string[] = []
+
+      masteries.forEach((m) => {
+        const isStrong = m.level >= 2 || m.streak >= 2
+        const idLower = m.itemId.toLowerCase()
+
+        if (idLower.includes('num_') || idLower.startsWith('n_')) {
+          const match = idLower.match(/\d+/)
+          const label = match ? `Số ${match[0]}` : m.itemId
+          if (isStrong) masteredNumbers.push(label)
+          else learningItems.push(label)
+        } else if (idLower.includes('let_') || idLower.startsWith('l_')) {
+          const char = idLower
+            .replace(/q_let_|l_/, '')
+            .replace('_cir', '')
+            .replace('_horn', '')
+            .replace('_breve', '')
+            .toUpperCase()
+          const label = `Chữ ${char}`
+          if (isStrong) masteredLetters.push(label)
+          else learningItems.push(label)
+        } else if (
+          idLower.includes('shape') ||
+          idLower.includes('color') ||
+          idLower.startsWith('c_') ||
+          idLower.startsWith('sh_')
+        ) {
+          let label = 'Hình Khối'
+          if (idLower.includes('red') || idLower.includes('do')) label = 'Màu Đỏ'
+          else if (idLower.includes('yellow') || idLower.includes('vang')) label = 'Màu Vàng'
+          else if (idLower.includes('blue') || idLower.includes('xanh_duong')) label = 'Màu Xanh'
+          else if (idLower.includes('green') || idLower.includes('xanh_la')) label = 'Màu Xanh Lá'
+          else if (idLower.includes('circle') || idLower.includes('tron')) label = 'Hình Tròn'
+          else if (idLower.includes('square') || idLower.includes('vuong')) label = 'Hình Vuông'
+          else if (idLower.includes('triangle') || idLower.includes('tam_giac')) label = 'Hình Tam Giác'
+          else if (idLower.includes('rectangle') || idLower.includes('chu_nhat')) label = 'Hình Chữ Nhật'
+          else if (idLower.includes('heart') || idLower.includes('trai_tim')) label = 'Hình Trái Tim'
+          else if (idLower.includes('star') || idLower.includes('ngoi_sao')) label = 'Ngôi Sao'
+
+          if (isStrong) masteredShapesColors.push(label)
+          else learningItems.push(label)
+        }
+      })
+
+      masteredNumbers.sort((a, b) => {
+        const numA = parseInt(a.replace(/\D/g, ''), 10) || 0
+        const numB = parseInt(b.replace(/\D/g, ''), 10) || 0
+        return numA - numB
+      })
+
+      setWeeklyReport({
+        dateRangeText,
+        totalMinutes,
+        avgMinutesPerDay,
+        activeDaysCount,
+        totalRuns: runs.length,
+        masteredNumbers: Array.from(new Set(masteredNumbers)),
+        masteredLetters: Array.from(new Set(masteredLetters)),
+        masteredShapesColors: Array.from(new Set(masteredShapesColors)),
+        learningItems: Array.from(new Set(learningItems)),
+      })
+    } catch (err) {
+      console.warn('Lỗi nạp báo cáo tuần:', err)
+    }
+  }
+
+  const handleShuffleIdeas = () => {
+    const allIndices = Array.from({ length: PLAY_TOGETHER_IDEAS.length }, (_, i) => i)
+    const shuffled = allIndices.sort(() => 0.5 - Math.random())
+    setSelectedIdeaIndices(shuffled.slice(0, 3))
+  }
+
+  const handleMarkPlayedTogether = async () => {
+    const todayStr = new Date().toISOString().split('T')[0]
+    await db.settings.put({ key: 'lastParentBondingDate', value: todayStr })
+    setHasPlayedToday(true)
+    confetti({
+      particleCount: 70,
+      spread: 60,
+      origin: { y: 0.65 },
+    })
+    setStatusMessage('Tuyệt vời! Thời gian tương tác trực tiếp là món quà quý giá nhất cho bé yêu ❤️')
+  }
 
   // Nạp dữ liệu cấu hình và tiến trình từ Dexie
   useEffect(() => {
@@ -81,23 +334,20 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
       }
     })
 
-    // 5. Kiểm tra lưu trữ bền vững
-    checkStoragePersistence()
-  }, [])
-
-  const checkStoragePersistence = async () => {
-    if (navigator.storage && navigator.storage.persisted) {
-      const isPersisted = await navigator.storage.persisted()
-      let usageMb = '0'
-      if (navigator.storage.estimate) {
-        const estimate = await navigator.storage.estimate()
-        if (estimate.usage) {
-          usageMb = (estimate.usage / (1024 * 1024)).toFixed(2)
-        }
+    // 5. Kiểm tra tương tác chơi cùng con hôm nay
+    const todayStr = new Date().toISOString().split('T')[0]
+    db.settings.get('lastParentBondingDate').then((s) => {
+      if (s?.value === todayStr) {
+        setHasPlayedToday(true)
       }
-      setStorageInfo({ isPersisted, usageMb })
-    }
-  }
+    })
+
+    // 6. Tính toán Báo cáo tuần
+    loadWeeklyReportData(profile.id)
+
+    // 7. Kiểm tra lưu trữ bền vững
+    checkStoragePersistence()
+  }, [profile.id])
 
   const handleRequestPersistence = async () => {
     if (navigator.storage && navigator.storage.persist) {
@@ -281,9 +531,211 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
 
       {/* 3. Nội Dung Tab */}
       <main className="flex-1 p-4 md:p-6 overflow-y-auto max-w-3xl mx-auto w-full space-y-4">
-        {/* --- TAB 1: TIẾN TRÌNH & THỐNG KÊ --- */}
+        {/* --- TAB 1: TIẾN TRÌNH & THỐNG KÊ & BÁO CÁO TUẦN --- */}
         {activeTab === 'progress' && (
           <div className="space-y-4">
+            {/* 1. KHỐI BÁO CÁO TUẦN CHO PHỤ HUYNH */}
+            <div className="bg-white p-5 rounded-3xl border-3 border-[#5A3E36] shadow-sm space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-[#5A3E36]/15 pb-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">📊</span>
+                    <h3 className="font-black text-lg text-[#5A3E36]">Báo Cáo Tuần Của Bé {profile.nickname}</h3>
+                  </div>
+                  <p className="text-xs text-[#8C6D62] mt-0.5">
+                    Tổng kết nhịp độ học tập và mức độ ghi nhớ 7 ngày qua
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5 bg-[#FFF8EC] px-3 py-1.5 rounded-full border border-[#5A3E36]/20 text-xs font-bold text-[#8C6D62]">
+                  <Calendar className="w-3.5 h-3.5 text-[#5A3E36]" />
+                  <span>{weeklyReport?.dateRangeText || '7 ngày gần nhất'}</span>
+                </div>
+              </div>
+
+              {/* 3 Thống kê trọng tâm: Thời gian trung bình, ngày chăm học, phiên hoàn thành */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="bg-[#FFF8EC] p-3.5 rounded-2xl border border-[#5A3E36]/15 flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-[#448AFF]/20 flex items-center justify-center shrink-0">
+                    <Clock className="w-6 h-6 text-[#1565C0]" />
+                  </div>
+                  <div>
+                    <div className="text-xl font-black text-[#5A3E36]">
+                      {weeklyReport?.avgMinutesPerDay || 0} phút<span className="text-xs font-bold text-[#8C6D62]">/ngày</span>
+                    </div>
+                    <div className="text-[11px] font-bold text-[#2E7D32]">
+                      {(weeklyReport?.avgMinutesPerDay || 0) <= 20 ? '✅ Nhịp độ rất lý tưởng' : '⚠️ Vượt 20 phút/ngày'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-[#FFF8EC] p-3.5 rounded-2xl border border-[#5A3E36]/15 flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-[#FF7043]/20 flex items-center justify-center shrink-0">
+                    <Flame className="w-6 h-6 text-[#D84315]" />
+                  </div>
+                  <div>
+                    <div className="text-xl font-black text-[#5A3E36]">
+                      {weeklyReport?.activeDaysCount || 0} / 7 <span className="text-xs font-bold text-[#8C6D62]">ngày</span>
+                    </div>
+                    <div className="text-[11px] font-bold text-[#8C6D62]">
+                      {(weeklyReport?.activeDaysCount || 0) >= 3 ? '🔥 Bé học rất chăm chỉ' : 'Bé đang tạo thói quen'}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-[#FFF8EC] p-3.5 rounded-2xl border border-[#5A3E36]/15 flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-[#FED000]/30 flex items-center justify-center shrink-0">
+                    <Award className="w-6 h-6 text-[#F57F17]" />
+                  </div>
+                  <div>
+                    <div className="text-xl font-black text-[#5A3E36]">
+                      {weeklyReport?.totalRuns || 0} <span className="text-xs font-bold text-[#8C6D62]">bài học</span>
+                    </div>
+                    <div className="text-[11px] font-bold text-[#8C6D62]">
+                      Đã hoàn thành xuất sắc
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Những chữ / số bé đã nhớ vững */}
+              <div className="pt-1">
+                <div className="font-extrabold text-xs text-[#5A3E36] mb-2 flex items-center gap-1.5">
+                  <Star className="w-4 h-4 fill-[#FED000] text-[#5A3E36]" />
+                  <span>Chữ, Số & Kiến Thức Bé Đã Nhớ Vững (Mastered):</span>
+                </div>
+
+                {(!weeklyReport ||
+                  (weeklyReport.masteredNumbers.length === 0 &&
+                    weeklyReport.masteredLetters.length === 0 &&
+                    weeklyReport.masteredShapesColors.length === 0)) ? (
+                  <div className="bg-[#FFF8EC] p-3.5 rounded-2xl border border-dashed border-[#5A3E36]/30 text-xs text-[#8C6D62] text-center">
+                    Bé đang trong giai đoạn làm quen và trải nghiệm! Khi bé trả lời đúng liên tiếp trong các phiên 15 câu, danh sách chữ và số bé nhớ vững sẽ tự động cập nhật tại đây ⭐.
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    {weeklyReport.masteredNumbers.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-black text-[#8C6D62] bg-[#5A3E36]/10 px-2 py-0.5 rounded-lg">🔢 Con số:</span>
+                        {weeklyReport.masteredNumbers.map((num) => (
+                          <span
+                            key={num}
+                            className="inline-flex items-center gap-1 text-xs font-black bg-blue-50 text-blue-800 border border-blue-200 px-2.5 py-1 rounded-xl shadow-xs"
+                          >
+                            <span>{num}</span>
+                            <span className="text-[10px] text-amber-500">★★★</span>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {weeklyReport.masteredLetters.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-black text-[#8C6D62] bg-[#5A3E36]/10 px-2 py-0.5 rounded-lg">🔤 Chữ cái:</span>
+                        {weeklyReport.masteredLetters.map((letItem) => (
+                          <span
+                            key={letItem}
+                            className="inline-flex items-center gap-1 text-xs font-black bg-orange-50 text-orange-800 border border-orange-200 px-2.5 py-1 rounded-xl shadow-xs"
+                          >
+                            <span>{letItem}</span>
+                            <span className="text-[10px] text-amber-500">★★★</span>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {weeklyReport.masteredShapesColors.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-black text-[#8C6D62] bg-[#5A3E36]/10 px-2 py-0.5 rounded-lg">🎨 Màu & Hình:</span>
+                        {weeklyReport.masteredShapesColors.map((sc) => (
+                          <span
+                            key={sc}
+                            className="inline-flex items-center gap-1 text-xs font-black bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-xl shadow-xs"
+                          >
+                            <span>{sc}</span>
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 2. KHỐI 3 GỢI Ý "CHƠI CÙNG CON" HÔM NAY (PARENT-CHILD BONDING) */}
+            <div className="bg-white p-5 rounded-3xl border-3 border-[#FED000] shadow-sm space-y-3">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div>
+                  <h3 className="font-black text-base text-[#5A3E36] flex items-center gap-2">
+                    <Heart className="w-5 h-5 fill-[#FF5252] text-[#FF5252]" />
+                    <span>3 Gợi Ý "Chơi Cùng Con" Hôm Nay</span>
+                  </h3>
+                  <p className="text-xs text-[#8C6D62] mt-0.5">
+                    Ý tưởng tương tác thực tế giữa ba mẹ và bé sau giờ học, không cần màn hình
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleShuffleIdeas}
+                    className="px-3 py-1.5 rounded-xl border border-[#5A3E36]/20 bg-[#FFF8EC] text-xs font-bold text-[#5A3E36] flex items-center gap-1.5 active:scale-95 transition-transform hover:bg-[#FED000]/20"
+                    title="Đổi 3 gợi ý khác"
+                  >
+                    <RotateCw className="w-3.5 h-3.5" />
+                    <span>Đổi gợi ý khác</span>
+                  </button>
+
+                  <button
+                    onClick={handleMarkPlayedTogether}
+                    className={`px-3 py-1.5 rounded-xl border text-xs font-black flex items-center gap-1.5 active:scale-95 transition-all ${
+                      hasPlayedToday
+                        ? 'bg-green-100 text-green-800 border-green-300'
+                        : 'bg-[#FED000] text-[#5A3E36] border-[#5A3E36]'
+                    }`}
+                  >
+                    {hasPlayedToday ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                        <span>Đã chơi hôm nay ❤️</span>
+                      </>
+                    ) : (
+                      <span>Đánh dấu đã chơi 🎉</span>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* 3 Thẻ Gợi Ý */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+                {selectedIdeaIndices.map((idx) => {
+                  const idea = PLAY_TOGETHER_IDEAS[idx]
+                  if (!idea) return null
+                  return (
+                    <div
+                      key={idea.id}
+                      className="bg-[#FFF8EC] p-3.5 rounded-2xl border-2 border-[#5A3E36]/15 flex flex-col justify-between"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-2xl">{idea.icon}</span>
+                          <span className={`text-[10px] font-black border px-2 py-0.5 rounded-full ${idea.badgeColor}`}>
+                            {idea.categoryLabel}
+                          </span>
+                        </div>
+                        <h4 className="font-black text-sm text-[#5A3E36] mb-1 leading-snug">{idea.title}</h4>
+                        <p className="text-xs text-[#5A3E36] leading-relaxed mb-2">
+                          👉 {idea.action}
+                        </p>
+                      </div>
+                      <div className="text-[10px] font-semibold text-[#8C6D62] italic border-t border-[#5A3E36]/10 pt-1.5">
+                        🎯 {idea.benefit}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
             {/* Khối tổng quan */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="bg-white p-4 rounded-3xl border-3 border-[#5A3E36]/15 shadow-sm text-center">
@@ -534,6 +986,43 @@ export const ParentDashboard: React.FC<ParentDashboardProps> = ({
               <p className="text-xs text-[#8C6D62] leading-relaxed">
                 Nhạc Kalimba mộc nhẹ nhàng giúp bé thư giãn và tập trung. Khi Pikachu nói, nhạc sẽ tự động nhỏ lại để bé nghe rõ từng từ ngữ.
               </p>
+            </div>
+
+            {/* Hướng dẫn cài đặt Kiosk Toàn Màn Hình cho iPad */}
+            <div className="bg-white p-5 rounded-3xl border-3 border-[#5A3E36] shadow-sm space-y-3">
+              <h3 className="font-extrabold text-base text-[#5A3E36] flex items-center gap-2">
+                <Tablet className="w-5 h-5 text-[#448AFF]" />
+                Cài Đặt Chế Độ Toàn Màn Hình Cho iPad (Kiosk PWA)
+              </h3>
+              <p className="text-xs text-[#8C6D62] leading-relaxed">
+                Biến iPad thành máy học chuyên biệt cho bé, chạy toàn màn hình không có thanh địa chỉ Safari và ngăn bé bấm nhầm thoát ra ngoài.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="bg-[#FFF8EC] p-3.5 rounded-2xl border border-[#5A3E36]/15 text-xs text-[#5A3E36] space-y-1.5">
+                  <div className="font-black text-sm flex items-center gap-1.5 text-[#5A3E36]">
+                    <span>1️⃣ Thêm vào Màn hình chính</span>
+                  </div>
+                  <p className="leading-relaxed">
+                    Mở trình duyệt <strong>Safari trên iPad</strong>, bấm nút <strong>Chia Sẻ (Share)</strong> ở góc trên ➔ Chọn <strong>"Thêm vào Màn hình chính" (Add to Home Screen)</strong>.
+                  </p>
+                  <p className="text-[11px] text-[#2E7D32] font-bold">
+                    ✅ Icon sắc nét Retina sẽ xuất hiện ngoài màn hình, mở app toàn màn hình 100%!
+                  </p>
+                </div>
+
+                <div className="bg-[#FFF8EC] p-3.5 rounded-2xl border border-[#5A3E36]/15 text-xs text-[#5A3E36] space-y-1.5">
+                  <div className="font-black text-sm flex items-center gap-1.5 text-[#5A3E36]">
+                    <span>2️⃣ Khóa màn hình Guided Access</span>
+                  </div>
+                  <p className="leading-relaxed">
+                    Vào <strong>Cài đặt iPad ➔ Trợ năng ➔ Truy cập được hướng dẫn (Guided Access)</strong> và Bật lên. Khi vào app, <strong>bấm nút Nguồn 3 lần</strong>.
+                  </p>
+                  <p className="text-[11px] text-[#1565C0] font-bold">
+                    🛡️ Bé sẽ không thể vuốt thoát ra YouTube, Safari hay xóa nhầm ứng dụng!
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         )}
