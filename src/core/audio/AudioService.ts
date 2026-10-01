@@ -239,7 +239,9 @@ class AudioService {
 
   }
 
-  private constructor() {}
+  private constructor() {
+    this.initLifecycleListeners()
+  }
 
   public static getInstance(): AudioService {
     if (!AudioService.instance) {
@@ -249,9 +251,9 @@ class AudioService {
   }
 
   /**
-   * Mở khóa toàn diện âm thanh trên iOS/iPadOS Safari:
+   * Mở khóa toàn diện âm thanh trên iOS/iPadOS Safari & Chrome:
    * 1. Kích hoạt Web AudioContext đồng bộ
-   * 2. Kích hoạt HTML5 Audio element để thiết lập quyền phát âm thanh Media Playback
+   * 2. Kích hoạt và dọn dẹp ngay HTML5 Audio element câm để thiết lập quyền Media Playback
    */
   public unlock(): void {
     if (this.isUnlocked) return
@@ -271,10 +273,12 @@ class AudioService {
       }
 
       // 2. Mở khóa HTML5 Audio element với một data URI âm thanh câm (silent wav)
-      // Điều này báo cho iOS/iPadOS WebKit chuyển sang session Playback (vượt qua công tắc im lặng)
+      // Sau khi kích hoạt AudioSession, lập tức dừng và xóa src để không tạo Now Playing session rác
       const silentAudio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA')
       silentAudio.play().then(() => {
         silentAudio.pause()
+        silentAudio.removeAttribute('src')
+        silentAudio.load()
       }).catch(() => {
         // bỏ qua nếu bị chặn
       })
@@ -314,7 +318,9 @@ class AudioService {
   }
 
   /**
-   * Phát nhạc nền thư giãn (BGM)
+   * Phát nhạc nền thư giãn (BGM):
+   * SỬ DỤNG html5: false (Web Audio API) ĐỂ KHÔNG ĐĂNG KÝ VÀO WIDGET NOW PLAYING TRÊN IPAD,
+   * TỰ ĐỘNG SUSPEND / TẮT KHI BÉ THOÁT RA MÀN HÌNH CHÍNH HOẶC ĐÓNG TRÌNH DUYỆT.
    */
   public startBGM(): void {
     if (!this.isBgmEnabled) return
@@ -325,13 +331,128 @@ class AudioService {
       this.bgmHowl = new Howl({
         src: [bgmUrl],
         loop: true,
-        html5: true,
+        html5: false, // Dùng Web Audio API: Không tạo Now Playing widget trên iPad, tự động ngắt khi thoát app
         volume: this.normalBgmVolume,
       })
     }
 
     if (!this.bgmHowl.playing()) {
       this.bgmHowl.play()
+    }
+  }
+
+  /**
+   * Lắng nghe vòng đời của ứng dụng và tab trình duyệt (iOS Safari, Chrome iPadOS):
+   * Tự động tắt ngay lập tức nhạc nền và âm thanh khi:
+   * - Người dùng tắt Chrome hoặc vuốt về màn hình chính
+   * - Khóa màn hình iPad
+   * - Chuyển sang tab khác hoặc đóng tab
+   */
+  private initLifecycleListeners(): void {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return
+
+    const onBackground = () => {
+      this.handleAppBackground()
+    }
+
+    const onForeground = () => {
+      this.handleAppForeground()
+    }
+
+    // 1. Sự kiện thay đổi hiển thị tab (Chuẩn W3C Page Visibility API)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        onBackground()
+      } else if (document.visibilityState === 'visible') {
+        onForeground()
+      }
+    })
+
+    // 2. Sự kiện rời trang / đóng tab / chuyển ứng dụng trên iOS WebKit
+    window.addEventListener('pagehide', onBackground)
+    window.addEventListener('beforeunload', onBackground)
+
+    // 3. Sự kiện mất tiêu điểm khi vuốt thanh đa nhiệm trên iPad
+    window.addEventListener('blur', () => {
+      if (document.visibilityState === 'hidden') {
+        onBackground()
+      }
+    })
+
+    // 4. Nếu trình duyệt có MediaSession API, gắn handler để đồng bộ trạng thái pause
+    if ('mediaSession' in navigator) {
+      try {
+        navigator.mediaSession.playbackState = 'none'
+        navigator.mediaSession.setActionHandler('pause', () => {
+          this.pauseBGM()
+          this.stopVoice()
+        })
+        navigator.mediaSession.setActionHandler('play', () => {
+          if (this.isBgmEnabled && this.isUnlocked) {
+            this.startBGM()
+          }
+        })
+      } catch {
+        // bỏ qua nếu trình duyệt không hỗ trợ setActionHandler
+      }
+    }
+  }
+
+  /**
+   * Xử lý khi ứng dụng bị ẩn / thu nhỏ / tắt ra màn hình chính
+   */
+  public handleAppBackground(): void {
+    // 1. Tạm dừng ngay lập tức nhạc nền
+    if (this.bgmHowl) {
+      try {
+        this.bgmHowl.pause()
+      } catch {
+        // bỏ qua
+      }
+    }
+
+    // 2. Dừng ngay câu thoại đang phát dở
+    this.stopVoice()
+
+    // 3. Suspend Web AudioContext để hệ điều hành giải phóng Audio Engine
+    if (Howler.ctx && Howler.ctx.state === 'running') {
+      try {
+        Howler.ctx.suspend()
+      } catch {
+        // bỏ qua
+      }
+    }
+
+    // 4. Đồng bộ MediaSession thành 'none' để tắt hoàn toàn widget Now Playing trên iPad
+    if ('mediaSession' in navigator) {
+      try {
+        navigator.mediaSession.playbackState = 'none'
+      } catch {
+        // bỏ qua
+      }
+    }
+  }
+
+  /**
+   * Xử lý khi ứng dụng được mở lại trên màn hình
+   */
+  public handleAppForeground(): void {
+    // 1. Đánh thức lại AudioContext nếu đang suspended
+    if (Howler.ctx && Howler.ctx.state === 'suspended') {
+      try {
+        Howler.ctx.resume()
+      } catch {
+        // bỏ qua
+      }
+    }
+
+    // 2. Khôi phục nhạc nền nếu người dùng đã mở khóa âm thanh và cài đặt bật nhạc nền
+    if (this.isUnlocked && this.isBgmEnabled) {
+      setTimeout(() => {
+        if (document.visibilityState === 'visible' && this.isBgmEnabled) {
+          this.startBGM()
+        }
+      }, 150)
     }
   }
 
@@ -489,7 +610,7 @@ class AudioService {
     if (soundUrl) {
       const howl = new Howl({
         src: [soundUrl],
-        html5: true, // BẮT BUỘC TRÊN IPAD: Vượt qua chế độ Silent Mode / Quả chuông trong Control Center
+        html5: false, // Dùng Web Audio API để phát tức thì và không bị dính widget Now Playing trên iPad
         preload: true,
         volume: 1.0,
         onloaderror: (_id, err) => {

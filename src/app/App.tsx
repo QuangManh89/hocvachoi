@@ -29,6 +29,14 @@ export const App: React.FC = () => {
 
   const companion: CompanionType = profile?.companion || 'pikachu'
 
+  // Cập nhật tiêu đề trang động theo bạn đồng hành
+  useEffect(() => {
+    document.title =
+      companion === 'kitty'
+        ? 'Học Và Chơi — Cùng Kitty 🎀'
+        : 'Học Và Chơi — Cùng Pikachu ⚡'
+  }, [companion])
+
   // Mở khóa âm thanh iOS/iPadOS tại lần chạm đầu tiên
   const handleStartApp = async () => {
     audioService.unlock()
