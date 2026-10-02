@@ -2,6 +2,20 @@ import { Howl, Howler } from 'howler'
 
 type VoiceEndCallback = () => void
 
+// Tự động gom 180 file âm thanh âm vần (Giọng Nữ Miền Nam)
+const phonicsModules = import.meta.glob<{ default: string }>(
+  '../../assets/sounds/phonics/*.mp3',
+  { eager: true }
+)
+
+const phonicsAudioMap: Record<string, string> = {}
+for (const [path, mod] of Object.entries(phonicsModules)) {
+  const match = path.match(/\/([^/]+)\.mp3$/)
+  if (match) {
+    phonicsAudioMap[match[1]] = (mod as any).default || (mod as any)
+  }
+}
+
 class AudioService {
   private static instance: AudioService
   private currentVoiceHowl: Howl | null = null
@@ -691,9 +705,50 @@ class AudioService {
   }
 
   /**
+   * Phát âm thanh âm vần hoặc dấu thanh (Giọng Nữ Miền Nam chuẩn ngọt ngào)
+   */
+  public playPhonics(id: string, fallbackText?: string, onEnd?: VoiceEndCallback): void {
+    this.stopVoice()
+    this.unlock()
+
+    const soundUrl = phonicsAudioMap[id] || this.staticAudioMap[id]
+
+    if (soundUrl) {
+      const howl = new Howl({
+        src: [soundUrl],
+        html5: false, // Dùng Web Audio API cực nhanh, không latency, không kích hoạt Now Playing
+        volume: 1.0,
+        onloaderror: (_id, err) => {
+          console.warn(`Lỗi nạp âm vần [${id}]:`, err)
+          this.notifyEnd()
+          onEnd?.()
+        },
+        onplayerror: (_id, err) => {
+          console.warn(`Lỗi phát âm vần [${id}]:`, err)
+          this.notifyEnd()
+          onEnd?.()
+        },
+        onplay: () => {
+          this.notifyStart()
+        },
+        onend: () => {
+          this.notifyEnd()
+          onEnd?.()
+        },
+      })
+
+      this.currentVoiceHowl = howl
+      howl.play()
+    } else if (fallbackText) {
+      this.speakText(fallbackText, onEnd)
+    } else {
+      onEnd?.()
+    }
+  }
+
+  /**
    * Fallback tổng hợp giọng nói Web Speech cho môi trường dev khi chưa có file âm thanh
    */
-
   private fallbackWebSpeech(text: string, onEnd?: VoiceEndCallback) {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel()

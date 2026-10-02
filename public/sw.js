@@ -1,5 +1,5 @@
 // Service Worker cho Học Và Chơi — Hoạt động offline 100% trên iPad Safari & PWA
-const CACHE_NAME = 'hocvachoi-v3'
+const CACHE_NAME = 'hocvachoi-v4'
 
 const PRECACHE_ASSETS = [
   './',

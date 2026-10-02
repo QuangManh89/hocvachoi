@@ -15,6 +15,7 @@ import { SmartReviewModal } from '@/features/review/SmartReviewModal'
 import { PuzzleGameModal } from '@/features/puzzle/PuzzleGameModal'
 import { StoryModal } from '@/features/story/StoryModal'
 import { PikachuHouseModal } from '@/features/house/PikachuHouseModal'
+import { PhonicsChartModal } from '@/features/phonics/PhonicsChartModal'
 
 
 
@@ -59,6 +60,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [isPuzzleOpen, setIsPuzzleOpen] = useState(false)
   const [isStoryOpen, setIsStoryOpen] = useState(false)
   const [isHouseOpen, setIsHouseOpen] = useState(false)
+  const [isPhonicsOpen, setIsPhonicsOpen] = useState(false)
 
 
 
@@ -329,7 +331,40 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         </button>
       </div>
 
-      {/* 3.1 CÁC KHÔNG GIAN SÁNG TẠO, TƯ DUY & GIẢI TRÍ */}
+      {/* 3.1 BANNER BẢNG ÂM VẦN LỚP 1 (180 ÂM VẦN - GIỌNG NỮ MIỀN NAM) */}
+      <div className="w-full max-w-xl mx-auto my-1.5 z-10">
+        <motion.button
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setIsPhonicsOpen(true)}
+          className="w-full btn-kid min-h-[72px] border-3 border-[#5A3E36] rounded-3xl p-3 shadow-lg flex items-center justify-between transition-transform bg-gradient-to-r from-[#FFF9C4] via-[#FFE082] to-[#FFD54F] hover:brightness-105 text-left"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-2xl shadow-sm border-2 border-[#5A3E36]/20">
+              🚌
+            </div>
+            <div className="text-left">
+              <div className="font-black text-base sm:text-lg text-[#5A3E36] flex items-center gap-2 leading-tight">
+                <span>Bảng Âm Vần Lớp 1</span>
+                <span className="bg-[#E91E63] text-white text-[10px] px-2 py-0.5 rounded-full font-black flex items-center gap-1 shadow-sm">
+                  <span>🌸</span>
+                  <span>GIỌNG MIỀN NAM</span>
+                </span>
+              </div>
+              <div className="text-[11px] sm:text-xs font-bold text-[#6D4C41] mt-0.5">
+                180 Dấu thanh, Âm & Vần kì 1, 2 • Chạm nghe • Đố vui tìm vần
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#5A3E36] text-white font-black text-xs sm:text-sm px-3.5 py-2 rounded-2xl flex items-center gap-1.5 shadow whitespace-nowrap">
+            <span>Mở bảng</span>
+            <ChevronRight className="w-4 h-4" />
+          </div>
+        </motion.button>
+      </div>
+
+      {/* 3.2 CÁC KHÔNG GIAN SÁNG TẠO, TƯ DUY & GIẢI TRÍ */}
       <div className="w-full max-w-xl mx-auto my-2 grid grid-cols-3 gap-2 sm:gap-2.5 z-10">
         {/* 1. Bé Tập Tô */}
         <motion.button
@@ -620,6 +655,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         childName={childName}
         companion={currentCompanion}
         onClose={() => setIsHouseOpen(false)}
+      />
+
+      {/* Bảng Âm Vần Lớp 1 - Giọng Nữ Miền Nam */}
+      <PhonicsChartModal
+        isOpen={isPhonicsOpen}
+        childName={childName}
+        companion={currentCompanion}
+        onClose={() => setIsPhonicsOpen(false)}
       />
     </div>
   )
